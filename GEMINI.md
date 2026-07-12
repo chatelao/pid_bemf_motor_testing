@@ -1,7 +1,7 @@
 GEMINI.md
 
 # Goal
-Create tool sketches for the XIAO 2040 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and cailbrate a PID driver.
+Create tool sketches for the XIAO 2040 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and cailbrate a PID driver using BEMF.
 
 # Structure
 - `CONCEPT.md`: The overall structure of the product, including Business & Use Cases as well as the High-Level Architecture.
