@@ -49,19 +49,27 @@ The system is composed of four main functional modules:
                  |       (bEMF A) A0  |<-------------------------------/
 ```
 
-## Major Choices and Alternatives
+## Major Choices
 
 ### 1. Feedback Method
 - **Alternative A: BEMF Sensing (Selected)**: Uses the motor itself as a generator during PWM off-times. Requires no extra mechanical parts and is cost-effective for model trains.
+
+### 2. Control Strategy
+- **Alternative A: PID Control (Selected)**: Standard closed-loop control that balances responsiveness and stability. Well-supported by RP2040's processing power.
+
+### 3. User Interface
+- **Alternative A: Serial CLI over USB (Selected)**: Leveraging the native USB capabilities of the RP2040. Requires no extra hardware and is ideal for developers.
+
+## Discarded Alternatives
+
+### 1. Feedback Method
 - **Alternative B: Optical Encoder**: Requires mounting a disk and sensor on the motor shaft. Highly accurate but mechanically difficult to fit inside small locomotives.
 - **Alternative C: Hall Effect Sensor**: Requires mounting magnets on the rotor. Less accurate than encoders and also presents mechanical integration challenges.
 
 ### 2. Control Strategy
-- **Alternative A: PID Control (Selected)**: Standard closed-loop control that balances responsiveness and stability. Well-supported by RP2040's processing power.
 - **Alternative B: Open-Loop PWM**: Simple to implement but cannot maintain constant speed under varying loads (e.g., climbing hills).
 - **Alternative C: Bang-Bang Control**: Simple on/off control. High efficiency but results in jerky motion and poor low-speed performance.
 
 ### 3. User Interface
-- **Alternative A: Serial CLI over USB (Selected)**: Leveraging the native USB capabilities of the RP2040. Requires no extra hardware and is ideal for developers.
 - **Alternative B: Physical Potentiometer and Buttons**: Intuitive for manual control but lacks the precision needed for PID calibration and data logging.
 - **Alternative C: Web/Mobile App via Wi-Fi**: User-friendly but requires more expensive hardware (e.g., ESP32) and increases software complexity significantly.
