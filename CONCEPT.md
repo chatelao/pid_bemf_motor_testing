@@ -13,6 +13,7 @@ Create tool sketches for the XIAO 2040 using BDR6133 to test Märklin Motor beha
 - **PID Parameter Calibration**: Perform automated sweeps of Proportional, Integral, and Derivative gains to find the most stable and responsive control loop settings.
 - **Real-time Performance Logging**: Stream motor speed, current consumption, and control error to a PC for visualization and analysis.
 - **Safety Monitoring**: Detect motor stalls or overcurrent conditions via the shunt resistor to protect the driver and the motor.
+- **Absolute Position Tracking**: Detect commutator ripples in the motor current to achieve "encoder-like" absolute position knowledge without physical encoders.
 
 ## High-Level Architecture
 The system is composed of four main functional modules:
@@ -60,6 +61,9 @@ The system is composed of four main functional modules:
 ### 3. User Interface
 - **Alternative A: Serial CLI over USB (Selected)**: Leveraging the native USB capabilities of the RP2040. Requires no extra hardware and is ideal for developers.
 
+### 4. Position Tracking Method
+- **Alternative A: Commutator Ripple Detection (Selected)**: Analyzes the high-frequency current fluctuations caused by the commutator switching. Enables position tracking on stock motors without mechanical modifications.
+
 ## Discarded Alternatives
 
 ### 1. Feedback Method
@@ -73,3 +77,7 @@ The system is composed of four main functional modules:
 ### 3. User Interface
 - **Alternative B: Physical Potentiometer and Buttons**: Intuitive for manual control but lacks the precision needed for PID calibration and data logging.
 - **Alternative C: Web/Mobile App via Wi-Fi**: User-friendly but requires more expensive hardware (e.g., ESP32) and increases software complexity significantly.
+
+### 4. Position Tracking Method
+- **Alternative B: Physical Encoders**: Use optical or magnetic encoders. Very precise but requires mechanical modification of the locomotive, which is often impossible in small scales.
+- **Alternative C: Time-Speed Integration**: Estimate position by integrating speed over time. Error accumulates quickly due to load variations and wheel slip, making it unsuitable for absolute positioning.
