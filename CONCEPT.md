@@ -1,7 +1,7 @@
 # CONCEPT - Märklin Motor Test & Calibration Tool
 
 ## Goal
-Create tool sketches for the XIAO 2040 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and calibrate a PID driver using BEMF.
+Create tool sketches for the XIAO 2040, Nucleo STM32F446RE and STM32G431 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and calibrate a PID driver using BEMF.
 
 ## Business Cases
 - **Modernization of Heritage Locomotives**: Enable collectors to upgrade vintage Märklin locomotives with modern control electronics while maintaining smooth performance.
@@ -18,7 +18,7 @@ Create tool sketches for the XIAO 2040 using BDR6133 to test Märklin Motor beha
 ## High-Level Architecture
 The system is composed of four main functional modules:
 
-1.  **Control Logic (RP2040)**: Manages the high-frequency PWM generation, executes the PID control algorithm, and handles user communication.
+1.  **Control Logic (MCU)**: Manages the high-frequency PWM generation, executes the PID control algorithm, and handles user communication. Supports RP2040 and STM32 platforms.
 2.  **Power Stage (BDR-6133)**: An H-bridge driver that translates low-voltage PWM signals into high-current motor drive signals.
 3.  **Sensing Unit**:
     - **BEMF Sensing**: High-impedance analog inputs to measure motor voltage during "off" PWM cycles.
@@ -32,34 +32,45 @@ The system is composed of four main functional modules:
 - **Data Export Interface**: Provides telemetry data in a format suitable for external plotting tools (e.g., CSV, Serial Plotter).
 - **Motor Power Interface**: Standard two-wire connection to DC brushed motors.
 
-## Wiring Diagram
+## Wiring Diagram (Generic)
 ```text
                  +--------------------+      +--------------------+         +---------------+
-                 |      RP2040        |      |     BDR-6133       |         |     Motor     |
-                 |    (Top View)      |      |    Motor Driver    |         | DC brushed    |
+                 |        MCU         |      |     BDR-6133       |         |     Motor     |
+                 | (RP2040 / STM32)   |      |    Motor Driver    |         | DC brushed    |
                  +--------------------+      +--------------------+         +---------------+
-                 |                5v  |      |                    |         |               |
-      ---``|<----| D15 (LED)      GND |      |                    |         |               |
-      ---``|<----| D16 (LED)      3v3 |      |                    |         |               |
+                 |                VCC |      |                    |         |               |
+      ---``|<----| Status LED 1   GND |      |                    |         |               |
+      ---``|<----| Status LED 2   3V3 |      |                    |         |               |
                  |                    |      |                    |         |               |
-                 |        (PWM B) D8  |----->| InB           OutB |=====+==>| B             |
-                 |        (PWM A) D7  |----->| InA           OutA |==+==|==>| A             |
+                 |        (PWM B)     |----->| InB           OutB |=====+==>| B             |
+                 |        (PWM A)     |----->| InA           OutA |==+==|==>| A             |
                  |                    |      +---------+----------+  |  |   +---------------+
-                 |       (Shunt)  A2  |<.............../             |  |
-                 |       (bEMF B) A1  |<----------------------------/   |
-                 |       (bEMF A) A0  |<-------------------------------/
+                 |       (Shunt)  ADC |<.............../             |  |
+                 |       (bEMF B) ADC |<----------------------------/   |
+                 |       (bEMF A) ADC |<-------------------------------/
 ```
 
 ## Major Choices
 
 ### 1. Feedback Method
 - **Alternative A: BEMF Sensing (Selected)**: Uses the motor itself as a generator during PWM off-times. Requires no extra mechanical parts and is cost-effective for model trains.
+- **Alternative B: Optical Encoder**: Requires mounting a disk and sensor on the motor shaft. Highly accurate but mechanically difficult to fit inside small locomotives.
+- **Alternative C: Hall Effect Sensor**: Requires mounting magnets on the rotor. Less accurate than encoders and also presents mechanical integration challenges.
 
 ### 2. Control Strategy
-- **Alternative A: PID Control (Selected)**: Standard closed-loop control that balances responsiveness and stability. Well-supported by RP2040's processing power.
+- **Alternative A: PID Control (Selected)**: Standard closed-loop control that balances responsiveness and stability. Well-supported by modern MCU processing power.
+- **Alternative B: Open-Loop PWM**: Simple to implement but cannot maintain constant speed under varying loads.
+- **Alternative C: Bang-Bang Control**: Simple on/off control. High efficiency but results in jerky motion.
 
 ### 3. User Interface
-- **Alternative A: Serial CLI over USB (Selected)**: Leveraging the native USB capabilities of the RP2040. Requires no extra hardware and is ideal for developers.
+- **Alternative A: Serial CLI over USB (Selected)**: Leveraging the native USB capabilities of the MCUs. Requires no extra hardware and is ideal for developers.
+- **Alternative B: Physical Potentiometer and Buttons**: Intuitive for manual control but lacks precision for calibration.
+- **Alternative C: Web/Mobile App via Wi-Fi/Bluetooth**: User-friendly but requires more expensive hardware and increases complexity.
+
+### 4. Target Platform Support
+- **Alternative A: Multi-Platform Arduino (Selected)**: Use the Arduino framework to support XIAO RP2040 and STM32 Nucleo boards. Provides high portability and a vast library ecosystem.
+- **Alternative B: Specific MCU (Single Platform)**: Focus only on XIAO RP2040. Simplifies development but limits the tool's reach and hardware flexibility.
+- **Alternative C: Real-Time OS (RTOS)**: Use FreeRTOS or Zephyr. Offers better task management but increases overhead and learning curve for simple tool sketches.
 
 ### 4. Position Tracking Method
 - **Alternative A: Commutator Ripple Detection (Selected)**: Analyzes the high-frequency current fluctuations caused by the commutator switching. Enables position tracking on stock motors without mechanical modifications.
@@ -67,17 +78,21 @@ The system is composed of four main functional modules:
 ## Discarded Alternatives
 
 ### 1. Feedback Method
-- **Alternative B: Optical Encoder**: Requires mounting a disk and sensor on the motor shaft. Highly accurate but mechanically difficult to fit inside small locomotives.
-- **Alternative C: Hall Effect Sensor**: Requires mounting magnets on the rotor. Less accurate than encoders and also presents mechanical integration challenges.
+- **Alternative B: Optical Encoder**: Highly accurate but mechanically difficult to fit inside small locomotives.
+- **Alternative C: Hall Effect Sensor**: Less accurate than encoders and also presents mechanical integration challenges.
 
 ### 2. Control Strategy
-- **Alternative B: Open-Loop PWM**: Simple to implement but cannot maintain constant speed under varying loads (e.g., climbing hills).
-- **Alternative C: Bang-Bang Control**: Simple on/off control. High efficiency but results in jerky motion and poor low-speed performance.
+- **Alternative B: Open-Loop PWM**: Cannot maintain constant speed under varying loads (e.g., climbing hills).
+- **Alternative C: Bang-Bang Control**: Results in jerky motion and poor low-speed performance.
 
 ### 3. User Interface
-- **Alternative B: Physical Potentiometer and Buttons**: Intuitive for manual control but lacks the precision needed for PID calibration and data logging.
-- **Alternative C: Web/Mobile App via Wi-Fi**: User-friendly but requires more expensive hardware (e.g., ESP32) and increases software complexity significantly.
+- **Alternative B: Physical Potentiometer and Buttons**: Lacks the precision needed for PID calibration and data logging.
+- **Alternative C: Web/Mobile App via Wi-Fi/Bluetooth**: Increases hardware cost and software complexity significantly.
 
-### 4. Position Tracking Method
+### 4. Target Platform Support
+- **Alternative B: Specific MCU**: Limits the utility of the tool to a single hardware platform.
+- **Alternative C: Real-Time OS (RTOS)**: Overly complex for the requirements of a motor calibration tool.
+
+### 5. Position Tracking Method
 - **Alternative B: Physical Encoders**: Use optical or magnetic encoders. Very precise but requires mechanical modification of the locomotive, which is often impossible in small scales.
 - **Alternative C: Time-Speed Integration**: Estimate position by integrating speed over time. Error accumulates quickly due to load variations and wheel slip, making it unsuitable for absolute positioning.
