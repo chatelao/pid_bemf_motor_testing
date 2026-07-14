@@ -41,6 +41,10 @@
 - [ ] Implement synchronous ADC polling on A0/A1
 - [ ] Integrate Arduino PID Library
 - [ ] Implement closed-loop speed control
+- [ ] Create "PWM and bEMF only" characterization sketch (`examples/BEMF_Ramp_Test`)
+    - [ ] 1s ramp up/down to max speed
+    - [ ] BEMF measurement during PWM off-time
+    - [ ] 1-50ms measurement gap every 250ms at max speed
 
 ### Phase 5: Commutator Ripple Detection
 - [ ] Implement DMA-based ADC sampling on A2
