@@ -3,43 +3,56 @@
 ## Progress Overview
 | Phase | Description | Status |
 |---|---|---|
-| Phase 1 | Foundation & Multi-Platform Documentation | ✅ |
-| Phase 2 | Environment Setup (CI/CD) | ⏳ |
-| Phase 3 | Core Implementation (BEMF & PID) | ⏳ |
-| Phase 4 | CLI & Telemetry | ⏳ |
-| Phase 5 | Validation & Calibration Sweeps | ⏳ |
+| 1 | Concept & Design | 🚧 |
+| 2 | Environment & CI/CD Setup | ⏳ |
+| 3 | Basic Motor Control (PWM) | ⏳ |
+| 4 | BEMF Sensing & PID Implementation | ⏳ |
+| 5 | Commutator Ripple Detection | ⏳ |
+| 6 | CLI & Data Logging | ⏳ |
+| 7 | Calibration Sweeps & Optimization | ⏳ |
 
 ## Goals
-- [ ] Support XIAO RP2040, Nucleo STM32F446RE, and Nucleo G431RB. ⏳
-- [ ] Reliable BEMF sensing synchronized with PWM. ⏳
-- [ ] Stable PID speed control for permanent magnet refitted Märklin motors. ⏳
-- [ ] Extensible CLI for calibration and real-time logging. ⏳
+- [ ] Automated BEMF characterization ✅
+- [ ] Stable PID speed control ✅
+- [ ] Absolute position tracking via ripple detection ✅
+- [ ] Serial CLI for real-time interaction ✅
+- [ ] Telemetry export for analysis ✅
 
 ## Phases
 
-### Phase 1: Foundation & Multi-Platform Documentation
-- [x] Define Goal and Structure in `GEMINI.md`.
-- [x] Update `CONCEPT.md` for multi-platform support.
-- [x] Update `DESIGN.md` with technical choices and pin mappings.
-- [x] Generalize `TOP_ARCHITECTURE.puml`.
+### Phase 1: Concept & Design
+- [x] Define business and use cases in `CONCEPT.md`
+- [x] Establish technical architecture and stack in `DESIGN.md`
+- [x] Create top-level architecture diagram in `TOP_ARCHITECTURE.puml`
+- [x] Incorporate absolute position tracking via ripple detection
 
-### Phase 2: Environment Setup (CI/CD)
-- [ ] Create `src/install.sh` for build tools. ⏳
-- [ ] Create `test/install.sh` for test tools. ⏳
-- [ ] Setup GitHub Action Workflow for PlatformIO builds. ⏳
-- [ ] Initialize `platformio.ini` with environments for all three boards. ⏳
+### Phase 2: Environment & CI/CD Setup
+- [ ] Create `src/install.sh` for build tools
+- [ ] Create `test/install.sh` for test tools
+- [ ] Setup GitHub Action workflows for CI/CD
+- [ ] Initialize PlatformIO project structure
 
-### Phase 3: Core Implementation (BEMF & PID)
-- [ ] Implement synchronous BEMF sampling. ⏳
-- [ ] Integrate Arduino PID library. ⏳
-- [ ] Implement basic PWM motor drive. ⏳
+### Phase 3: Basic Motor Control (PWM)
+- [ ] Implement dual-channel PWM on D7/D8
+- [ ] Basic open-loop motor drive functionality
+- [ ] Status LED integration (D15, D16)
 
-### Phase 4: CLI & Telemetry
-- [ ] Integrate SerialCommands library. ⏳
-- [ ] Implement speed setpoint and PID tuning commands. ⏳
-- [ ] Implement real-time telemetry streaming (CSV/Serial Plotter format). ⏳
+### Phase 4: BEMF Sensing & PID Implementation
+- [ ] Implement synchronous ADC polling on A0/A1
+- [ ] Integrate Arduino PID Library
+- [ ] Implement closed-loop speed control
 
-### Phase 5: Validation & Calibration Sweeps
-- [ ] Implement automated PID tuning sweep scripts. ⏳
-- [ ] Validate motor performance on all three hardware platforms. ⏳
-- [ ] Finalize documentation and usage examples. ⏳
+### Phase 5: Commutator Ripple Detection
+- [ ] Implement DMA-based ADC sampling on A2
+- [ ] Develop digital filtering and peak detection logic
+- [ ] Implement absolute position/revolution counter
+
+### Phase 6: CLI & Data Logging
+- [ ] Integrate SerialCommands library
+- [ ] Implement commands for speed, PID tuning, and telemetry
+- [ ] Standardize telemetry output format
+
+### Phase 7: Calibration Sweeps & Optimization
+- [ ] Automated $K_e$ measurement sweep
+- [ ] PID gain auto-tuning routine
+- [ ] Final performance verification and documentation

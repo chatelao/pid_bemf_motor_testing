@@ -69,6 +69,12 @@ The chosen implementation for the HAL is the **Arduino Core**.
 - **Alternative B: Native Vendor SDKs (HAL/LL/pico-sdk)**: Offers maximum performance and control. However, it requires separate codebases for RP2040 and STM32, increasing maintenance overhead.
 - **Alternative C: MBED OS**: Standard on some STM32 boards. Provides RTOS features but is heavier than necessary and support for RP2040 in Arduino varies.
 
+### 6. Ripple Detection Realization
+The chosen implementation for position tracking is **DMA-based High-Speed Sampling and Digital Filtering**.
+
+- **Implementation**: Utilize the RP2040's DMA to capture high-frequency current samples from ADC channel A2 (shunt) into a circular buffer. A second core or a high-priority interrupt then applies a digital band-pass filter and peak detection to identify commutator ripples.
+- **Justification**: Commutator ripples are high-frequency signals superimposed on the average motor current. High-speed sampling (e.g., 500 kHz) and digital processing are required to reliably extract these ripples from the PWM noise and other interference. The RP2040's dual cores and DMA make this computationally feasible.
+
 ## Discarded Technical Alternatives
 
 ### 1. BEMF Sampling
@@ -92,3 +98,9 @@ The chosen implementation for the HAL is the **Arduino Core**.
 ### 4. Hardware Abstraction Layer
 - **Alternative B: Native Vendor SDKs**: Too much platform-specific code needed for a "tool sketch".
 - **Alternative C: MBED OS**: Increases binary size and complexity without significant benefit for this application.
+
+### 5. Ripple Detection
+- **Alternative B: Analog Hardware Comparator**: Using an external analog circuit (op-amp, comparator, high-pass filter) to convert ripples into digital pulses.
+  - *Reason for discarding*: Increases hardware complexity and bill of materials; less flexible than digital filtering for different motor types.
+- **Alternative C: Zero-Crossing Detection**: Identifying ripples by looking for zero-crossings in the AC-coupled current signal.
+  - *Reason for discarding*: Highly sensitive to noise and PWM artifacts; digital peak detection after filtering is more robust.

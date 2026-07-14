@@ -13,6 +13,7 @@ Create tool sketches for the XIAO 2040, Nucleo STM32F446RE and STM32G431 using B
 - **PID Parameter Calibration**: Perform automated sweeps of Proportional, Integral, and Derivative gains to find the most stable and responsive control loop settings.
 - **Real-time Performance Logging**: Stream motor speed, current consumption, and control error to a PC for visualization and analysis.
 - **Safety Monitoring**: Detect motor stalls or overcurrent conditions via the shunt resistor to protect the driver and the motor.
+- **Absolute Position Tracking**: Detect commutator ripples in the motor current to achieve "encoder-like" absolute position knowledge without physical encoders.
 
 ## High-Level Architecture
 The system is composed of four main functional modules:
@@ -71,6 +72,9 @@ The system is composed of four main functional modules:
 - **Alternative B: Specific MCU (Single Platform)**: Focus only on XIAO RP2040. Simplifies development but limits the tool's reach and hardware flexibility.
 - **Alternative C: Real-Time OS (RTOS)**: Use FreeRTOS or Zephyr. Offers better task management but increases overhead and learning curve for simple tool sketches.
 
+### 4. Position Tracking Method
+- **Alternative A: Commutator Ripple Detection (Selected)**: Analyzes the high-frequency current fluctuations caused by the commutator switching. Enables position tracking on stock motors without mechanical modifications.
+
 ## Discarded Alternatives
 
 ### 1. Feedback Method
@@ -88,3 +92,7 @@ The system is composed of four main functional modules:
 ### 4. Target Platform Support
 - **Alternative B: Specific MCU**: Limits the utility of the tool to a single hardware platform.
 - **Alternative C: Real-Time OS (RTOS)**: Overly complex for the requirements of a motor calibration tool.
+
+### 5. Position Tracking Method
+- **Alternative B: Physical Encoders**: Use optical or magnetic encoders. Very precise but requires mechanical modification of the locomotive, which is often impossible in small scales.
+- **Alternative C: Time-Speed Integration**: Estimate position by integrating speed over time. Error accumulates quickly due to load variations and wheel slip, making it unsuitable for absolute positioning.
