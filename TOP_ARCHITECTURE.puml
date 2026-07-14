@@ -1,7 +1,7 @@
 @startuml TOP_ARCHITECTURE
 !theme plain
 
-package "XIAO RP2040" {
+package "MCU Board (RP2040 / STM32)" {
     component [Control Logic] as CL
     component [Interface] as IF
 }
