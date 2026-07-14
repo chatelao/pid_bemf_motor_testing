@@ -27,8 +27,8 @@
 - [x] Incorporate absolute position tracking via ripple detection
 
 ### Phase 2: Environment & CI/CD Setup
-- [ ] Create `src/install.sh` for build tools
-- [ ] Create `test/install.sh` for test tools
+- [x] Create `src/install.sh` for build tools
+- [x] Create `test/install.sh` for test tools
 - [ ] Setup GitHub Action workflows for CI/CD
 - [ ] Initialize PlatformIO project structure
 

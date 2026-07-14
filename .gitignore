@@ -1,0 +1,7 @@
+.pio/
+**/.pio/
+.vscode/
+**/.vscode/
+*.o
+*.a
+*.exe
