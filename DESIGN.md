@@ -57,6 +57,12 @@ The chosen implementation for the User Interface is the **SerialCommands Library
 - **Implementation**: A command-dispatcher library that maps serial strings (e.g., `SET_SPEED 500`) to internal C++ functions.
 - **Justification**: It provides a clean way to handle multiple commands and parameters without writing a complex custom parser, making the CLI extensible for future use cases like calibration sweeps.
 
+### 6. Ripple Detection Realization
+The chosen implementation for position tracking is **DMA-based High-Speed Sampling and Digital Filtering**.
+
+- **Implementation**: Utilize the RP2040's DMA to capture high-frequency current samples from ADC channel A2 (shunt) into a circular buffer. A second core or a high-priority interrupt then applies a digital band-pass filter and peak detection to identify commutator ripples.
+- **Justification**: Commutator ripples are high-frequency signals superimposed on the average motor current. High-speed sampling (e.g., 500 kHz) and digital processing are required to reliably extract these ripples from the PWM noise and other interference. The RP2040's dual cores and DMA make this computationally feasible.
+
 ## Discarded Technical Alternatives
 
 ### 1. BEMF Sampling
@@ -76,3 +82,9 @@ The chosen implementation for the User Interface is the **SerialCommands Library
   - *Reason for discarding*: Hard to maintain as the number of commands grows; lacks structured parameter parsing.
 - **Alternative C: Microrl**: A full-featured interactive shell with history and tab-completion.
   - *Reason for discarding*: Too heavy for a simple calibration tool; `SerialCommands` provides the right balance of simplicity and structure.
+
+### 4. Ripple Detection
+- **Alternative B: Analog Hardware Comparator**: Using an external analog circuit (op-amp, comparator, high-pass filter) to convert ripples into digital pulses.
+  - *Reason for discarding*: Increases hardware complexity and bill of materials; less flexible than digital filtering for different motor types.
+- **Alternative C: Zero-Crossing Detection**: Identifying ripples by looking for zero-crossings in the AC-coupled current signal.
+  - *Reason for discarding*: Highly sensitive to noise and PWM artifacts; digital peak detection after filtering is more robust.
