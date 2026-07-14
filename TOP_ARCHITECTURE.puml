@@ -1,0 +1,23 @@
+@startuml TOP_ARCHITECTURE
+!theme plain
+
+package "XIAO RP2040" {
+    component [Control Logic] as CL
+    component [Interface] as IF
+}
+
+component [Power Stage\n(BDR-6133)] as PS
+component [Sensing Unit] as SU
+component [Motor] as M
+component [PC / User] as USR
+
+USR <-> IF : "Serial CLI / USB"
+IF --> CL : "Setpoints /\nPID Tuning"
+CL --> PS : "PWM Signals\n(D7, D8)"
+PS --> M : "Motor Drive"
+M -- SU : "Feedback"
+SU --> CL : "BEMF / Current\n(A0, A1, A2)"
+CL --> IF : "Telemetry Data"
+IF --> USR : "Real-time Logging"
+
+@enduml
