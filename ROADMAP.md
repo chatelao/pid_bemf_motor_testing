@@ -3,8 +3,8 @@
 ## Progress Overview
 | Phase | Description | Status |
 |---|---|---|
-| 1 | Concept & Design | 🚧 |
-| 2 | Environment & CI/CD Setup | ⏳ |
+| 1 | Concept & Design | ✅ |
+| 2 | Environment & CI/CD Setup | ✅ |
 | 3 | Basic Motor Control (PWM) | ⏳ |
 | 4 | BEMF Sensing & PID Implementation | ⏳ |
 | 5 | Commutator Ripple Detection | ⏳ |
@@ -29,8 +29,8 @@
 ### Phase 2: Environment & CI/CD Setup
 - [x] Create `src/install.sh` for build tools
 - [x] Create `test/install.sh` for test tools
-- [ ] Setup GitHub Action workflows for CI/CD
-- [ ] Initialize PlatformIO project structure
+- [x] Setup GitHub Action workflows for CI/CD
+- [x] Initialize PlatformIO project structure
 
 ### Phase 3: Basic Motor Control (PWM)
 - [ ] Implement dual-channel PWM on D7/D8
@@ -41,10 +41,10 @@
 - [ ] Implement synchronous ADC polling on A0/A1
 - [ ] Integrate Arduino PID Library
 - [ ] Implement closed-loop speed control
-- [ ] Create "PWM and bEMF only" characterization sketch (`examples/BEMF_Ramp_Test`)
-    - [ ] 1s ramp up/down to max speed
-    - [ ] BEMF measurement during PWM off-time
-    - [ ] 1-50ms measurement gap every 250ms at max speed
+- [x] Create "PWM and bEMF only" characterization sketch (`examples/BEMF_Ramp_Test`)
+    - [x] 1s ramp up/down to max speed
+    - [x] BEMF measurement during PWM off-time
+    - [x] 1-50ms measurement gap every 250ms at max speed
 
 ### Phase 5: Commutator Ripple Detection
 - [ ] Implement DMA-based ADC sampling on A2
