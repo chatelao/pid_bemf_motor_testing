@@ -41,17 +41,20 @@
 const uint32_t RAMP_DURATION_MS = 1000;
 const uint32_t MEASURE_GAP_MS = 25;      // Gap duration (1-50ms)
 const uint32_t MEASURE_INTERVAL_MS = 250; // Every 250ms
+const uint32_t LOG_INTERVAL_US = 25;      // 40kHz sampling
 
 // State variables
 uint32_t last_ramp_update = 0;
 uint32_t last_gap_time = 0;
+uint32_t last_log_time_us = 0;
 int current_pwm = 0;
 bool ramping_up = true;
 bool in_gap = false;
 uint32_t gap_start_ms = 0;
 
 void setup() {
-  Serial.begin(115200);
+  // Use high baud rate for 40kHz logging (may be ignored on USB CDC)
+  Serial.begin(921600);
   while (!Serial && millis() < 2000); // Wait for Serial on USB boards
 
   pinMode(PIN_PWM_A, OUTPUT);
@@ -78,6 +81,26 @@ void setup() {
 
 void loop() {
   uint32_t now = millis();
+  uint32_t now_us = micros();
+
+  // 0. High-speed Logging (40kHz)
+  if (now_us - last_log_time_us >= LOG_INTERVAL_US) {
+    // Increment by interval to prevent cumulative timing drift
+    last_log_time_us += LOG_INTERVAL_US;
+
+    // Quick samples
+    int bemfA = analogRead(PIN_BEMF_A);
+    int bemfB = analogRead(PIN_BEMF_B);
+
+    // Log data non-stop in CSV format: PWM, BEMF_A, BEMF_B, IS_GAP
+    Serial.print(current_pwm);
+    Serial.print(',');
+    Serial.print(bemfA);
+    Serial.print(',');
+    Serial.print(bemfB);
+    Serial.print(',');
+    Serial.println(in_gap ? 1 : 0);
+  }
 
   // 1. Measurement Gap Logic
   if (!in_gap && (now - last_gap_time >= MEASURE_INTERVAL_MS)) {
@@ -96,16 +119,7 @@ void loop() {
       // Resume current PWM
       analogWrite(PIN_PWM_A, current_pwm);
     } else {
-      // During gap, measure and log BEMF
-      int bemfA = analogRead(PIN_BEMF_A);
-      int bemfB = analogRead(PIN_BEMF_B);
-      Serial.print(current_pwm);
-      Serial.print(", ");
-      Serial.print(bemfA);
-      Serial.print(", ");
-      Serial.print(bemfB);
-      Serial.println(", 1");
-      delay(5); // Don't flood too much, but get a few samples per gap
+      // Motor is already stopped (PWM=0) in gap entry
       return;
     }
   }
@@ -137,18 +151,12 @@ void loop() {
 
     current_pwm = (int)pwm_float;
 
-    // Drive Motor in one direction
-    analogWrite(PIN_PWM_A, current_pwm);
-    analogWrite(PIN_PWM_B, 0);
+    // Drive Motor in one direction (only if not in gap)
+    if (!in_gap) {
+      analogWrite(PIN_PWM_A, current_pwm);
+      analogWrite(PIN_PWM_B, 0);
+    }
 
     digitalWrite(PIN_LED1, current_pwm > 0 ? HIGH : LOW);
-
-    // Log data
-    Serial.print(current_pwm);
-    Serial.print(", ");
-    Serial.print(analogRead(PIN_BEMF_A));
-    Serial.print(", ");
-    Serial.print(analogRead(PIN_BEMF_B));
-    Serial.println(", 0");
   }
 }
