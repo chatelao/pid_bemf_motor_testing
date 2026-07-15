@@ -51,7 +51,7 @@ bool in_gap = false;
 uint32_t gap_start_ms = 0;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(921600);
   while (!Serial && millis() < 2000); // Wait for Serial on USB boards
 
   pinMode(PIN_PWM_A, OUTPUT);
@@ -78,6 +78,24 @@ void setup() {
 
 void loop() {
   uint32_t now = millis();
+  static uint32_t last_log_us = micros();
+
+  // 40kHz Logging (every 25us) - Best effort non-blocking
+  if (micros() - last_log_us >= 25) {
+    last_log_us += 25;
+    // Check if buffer has enough space for ~20-25 chars to avoid blocking
+    if (Serial.availableForWrite() >= 32) {
+      int bemfA = analogRead(PIN_BEMF_A);
+      int bemfB = analogRead(PIN_BEMF_B);
+      Serial.print(current_pwm);
+      Serial.print(',');
+      Serial.print(bemfA);
+      Serial.print(',');
+      Serial.print(bemfB);
+      Serial.print(',');
+      Serial.println(in_gap ? 1 : 0);
+    }
+  }
 
   // 1. Measurement Gap Logic
   if (!in_gap && (now - last_gap_time >= MEASURE_INTERVAL_MS)) {
@@ -95,18 +113,6 @@ void loop() {
       digitalWrite(PIN_LED2, LOW);
       // Resume current PWM
       analogWrite(PIN_PWM_A, current_pwm);
-    } else {
-      // During gap, measure and log BEMF
-      int bemfA = analogRead(PIN_BEMF_A);
-      int bemfB = analogRead(PIN_BEMF_B);
-      Serial.print(current_pwm);
-      Serial.print(", ");
-      Serial.print(bemfA);
-      Serial.print(", ");
-      Serial.print(bemfB);
-      Serial.println(", 1");
-      delay(5); // Don't flood too much, but get a few samples per gap
-      return;
     }
   }
 
@@ -142,13 +148,5 @@ void loop() {
     analogWrite(PIN_PWM_B, 0);
 
     digitalWrite(PIN_LED1, current_pwm > 0 ? HIGH : LOW);
-
-    // Log data
-    Serial.print(current_pwm);
-    Serial.print(", ");
-    Serial.print(analogRead(PIN_BEMF_A));
-    Serial.print(", ");
-    Serial.print(analogRead(PIN_BEMF_B));
-    Serial.println(", 0");
   }
 }
