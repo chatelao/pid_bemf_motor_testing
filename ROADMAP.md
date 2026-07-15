@@ -5,7 +5,7 @@
 |---|---|---|
 | 1 | Concept & Design | ✅ |
 | 2 | Environment & CI/CD Setup | ✅ |
-| 3 | Basic Motor Control (PWM) | ⏳ |
+| 3 | Basic Motor Control (PWM) | ✅ |
 | 4 | BEMF Sensing & PID Implementation | ⏳ |
 | 5 | Commutator Ripple Detection | ⏳ |
 | 6 | CLI & Data Logging | ⏳ |
@@ -33,9 +33,9 @@
 - [x] Initialize PlatformIO project structure
 
 ### Phase 3: Basic Motor Control (PWM)
-- [ ] Implement dual-channel PWM on D7/D8
-- [ ] Basic open-loop motor drive functionality
-- [ ] Status LED integration (D15, D16)
+- [x] Implement dual-channel PWM on D7/D8
+- [x] Basic open-loop motor drive functionality
+- [x] Status LED integration (D15, D16)
 
 ### Phase 4: BEMF Sensing & PID Implementation
 - [ ] Implement synchronous ADC polling on A0/A1
