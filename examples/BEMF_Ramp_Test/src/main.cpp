@@ -11,16 +11,16 @@
 
 // Pin Definitions based on DESIGN.md
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A 7
-  #define PIN_PWM_B 8
+  #define PIN_PWM_A   7
+  #define PIN_PWM_B   8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
   #define PIN_LED1   15
   #define PIN_LED2   16
 #elif defined(ARDUINO_ARCH_STM32)
-  #define PIN_PWM_A 7
-  #define PIN_PWM_B 8
+  #define PIN_PWM_A   7
+  #define PIN_PWM_B   8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
@@ -28,8 +28,8 @@
   #define PIN_LED2   12
 #else
   // Default fallback to standard pins
-  #define PIN_PWM_A 7
-  #define PIN_PWM_B 8
+  #define PIN_PWM_A   7
+  #define PIN_PWM_B   8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
@@ -38,18 +38,18 @@
 #endif
 
 // Parameters
-const uint32_t RAMP_DURATION_MS = 1000;
-const uint32_t MEASURE_GAP_MS = 25;      // Gap duration (1-50ms)
-const uint32_t MEASURE_INTERVAL_MS = 250; // Every 250ms
+const uint32_t RAMP_DURATION_MS    = 1000 ;
+const uint32_t MEASURE_GAP_MS      =   25 ;  // Gap duration (1-50ms)
+const uint32_t MEASURE_INTERVAL_MS =  250 ;  // Every 250ms
 
 // State variables
-uint32_t last_ramp_update = 0;
-uint32_t last_gap_time = 0;
-int current_pwm = 0;
-bool ramping_up = true;
-bool forward = true; // Added direction variable
-bool in_gap = false;
-uint32_t gap_start_ms = 0;
+uint32_t last_ramp_update =     0 ;
+uint32_t last_gap_time    =     0 ;
+     int current_pwm      =     0 ;
+    bool ramping_up       = true  ;
+    bool forward          = true  ; // Added direction variable
+    bool in_gap           = false ;
+uint32_t gap_start_ms     =     0 ;
 
 void setup() {
   Serial.begin(921600);
@@ -57,8 +57,8 @@ void setup() {
 
   pinMode(PIN_PWM_A, OUTPUT);
   pinMode(PIN_PWM_B, OUTPUT);
-  pinMode(PIN_LED1, OUTPUT);
-  pinMode(PIN_LED2, OUTPUT);
+  pinMode(PIN_LED1,  OUTPUT);
+  pinMode(PIN_LED2,  OUTPUT);
 
   // Set ADC to 12-bit resolution as per DESIGN.md
   analogReadResolution(12);
@@ -78,7 +78,7 @@ void setup() {
 }
 
 void loop() {
-  uint32_t now = millis();
+         uint32_t now         = millis();
   static uint32_t last_log_us = micros();
 
   // 40kHz Logging (every 25us) - Best effort non-blocking
