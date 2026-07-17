@@ -10,6 +10,7 @@
 | 5 | Commutator Ripple Detection | ⏳ |
 | 6 | CLI & Data Logging | ⏳ |
 | 7 | Calibration Sweeps & Optimization | ⏳ |
+| 8 | Seeed Studio XIAO RA4M1 Support | ⏳ |
 
 ## Goals
 - [ ] Automated BEMF characterization ✅
@@ -17,6 +18,7 @@
 - [ ] Absolute position tracking via ripple detection ✅
 - [ ] Serial CLI for real-time interaction ✅
 - [ ] Telemetry export for analysis ✅
+- [ ] Support Seeed Studio XIAO RA4M1 platform ⏳
 
 ## Phases
 
@@ -91,3 +93,14 @@
 - [ ] **Phase 7.3: Performance Verification & Reporting**
     - [ ] Create a final validation sequence to sweep calibrated motor speed across different target loads.
     - [ ] Export system health statistics (ripple tracking efficiency, PID tracking error) and document results in `DESIGN.md`.
+
+### Phase 8: Seeed Studio XIAO RA4M1 Support
+- [ ] **Phase 8.1: Platform & Environment Configuration**
+    - [ ] Add PlatformIO environment configuration for `seeed_xiao_ra4m1` in `platformio.ini`.
+    - [ ] Configure toolchain, upload protocols, and framework settings for the Renesas RA4M1 microcontroller.
+- [ ] **Phase 8.2: Hardware Pin Mapping & Driver Integration**
+    - [ ] Validate and document standard pin mapping for XIAO RA4M1 (D7/D8 for PWM, A0/A1 for BEMF, A2 for current sensing).
+    - [ ] Adapt 20 kHz PWM timer configuration or verify standard Arduino analogWrite resolution support for RA4M1.
+- [ ] **Phase 8.3: Platform Verification & Testing**
+    - [ ] Compile core application and example sketches for the `seeed_xiao_ra4m1` target.
+    - [ ] Update CI/CD GitHub Actions workflow to build and verify the RA4M1 target automatically.
