@@ -1,13 +1,15 @@
 #include <Arduino.h>
 #include <PID_v1.h>
+#include <SerialCommands.h>
 
 /**
  * Märklin Motor Test & Calibration Tool
  *
- * Phase 4: BEMF Sensing & PID Implementation
+ * Phase 4: BEMF Sensing & PID Implementation with CLI Support
  * - Implement synchronous ADC polling on A0/A1
  * - Integrate Arduino PID Library
  * - Implement closed-loop speed control
+ * - Serial CLI interface using SerialCommands for manual/testing modes
  */
 
 // Pin Definitions based on DESIGN.md and board specific variants
@@ -43,6 +45,28 @@ const uint32_t CONTROL_INTERVAL_MS = 50;
 // State variables
 uint32_t last_control_time = 0;
 bool forward = true;
+
+// Direction Mode
+enum DirectionMode {
+  DIR_FWD_ONLY,
+  DIR_REV_ONLY,
+  DIR_BOTH
+};
+DirectionMode current_dir_mode = DIR_BOTH;
+
+// Control Mode
+enum ControlMode {
+  CTRL_PROFILE,
+  CTRL_CONST_SPEED,
+  CTRL_CONST_PWM
+};
+ControlMode current_ctrl_mode = CTRL_PROFILE;
+
+// Constant speed / PWM settings
+double const_speed_target = 1000.0;
+int const_pwm_target = 128;
+uint32_t last_dir_toggle_time = 0;
+const uint32_t DIR_TOGGLE_INTERVAL_MS = 4000;
 
 // PID Variables
 double pid_input = 0;
@@ -82,6 +106,183 @@ const size_t PROFILE_STEPS_COUNT = sizeof(profile) / sizeof(profile[0]);
 size_t current_step_index = 0;
 uint32_t step_start_time = 0;
 
+// Stream Wrapper to remove carriage return '\r' and make CLI highly robust across platforms
+class SanitizedSerialStream : public Stream {
+private:
+  Stream* source_;
+public:
+  SanitizedSerialStream(Stream* source) : source_(source) {}
+
+  int available() override {
+    while (source_->available() > 0) {
+      int ch = source_->peek();
+      if (ch == '\r') {
+        source_->read(); // Discard '\r'
+      } else {
+        break;
+      }
+    }
+    return source_->available();
+  }
+
+  int read() override {
+    while (true) {
+      int ch = source_->read();
+      if (ch == -1) return -1;
+      if (ch != '\r') {
+        return ch;
+      }
+    }
+  }
+
+  int peek() override {
+    while (true) {
+      int ch = source_->peek();
+      if (ch == -1) return -1;
+      if (ch == '\r') {
+        source_->read(); // Discard '\r'
+      } else {
+        return ch;
+      }
+    }
+  }
+
+  void flush() override {
+    source_->flush();
+  }
+
+  size_t write(uint8_t val) override {
+    return source_->write(val);
+  }
+
+  size_t write(const uint8_t *buf, size_t size) override {
+    return source_->write(buf, size);
+  }
+};
+
+SanitizedSerialStream sanitized_serial(&Serial);
+char serial_command_buffer[32];
+SerialCommands serial_commands(&sanitized_serial, serial_command_buffer, sizeof(serial_command_buffer), "\n", " ");
+
+// CLI Command Handlers
+void cmd_fwd_only(SerialCommands* sender) {
+  current_dir_mode = DIR_FWD_ONLY;
+  forward = true;
+  sender->GetSerial()->println(">>> Direction Mode: FORWARD ONLY");
+}
+
+void cmd_rev_only(SerialCommands* sender) {
+  current_dir_mode = DIR_REV_ONLY;
+  forward = false;
+  sender->GetSerial()->println(">>> Direction Mode: BACKWARD ONLY");
+}
+
+void cmd_both_dir(SerialCommands* sender) {
+  current_dir_mode = DIR_BOTH;
+  last_dir_toggle_time = millis();
+  sender->GetSerial()->println(">>> Direction Mode: BIDIRECTIONAL (BOTH)");
+}
+
+void cmd_const_speed(SerialCommands* sender) {
+  char* arg = sender->Next();
+  if (arg == NULL) {
+    sender->GetSerial()->println(">>> Error: Speed target argument missing (0-4095)");
+    return;
+  }
+  double target = atof(arg);
+  if (target < 0.0 || target > 4095.0) {
+    sender->GetSerial()->println(">>> Error: Speed must be between 0 and 4095");
+    return;
+  }
+  const_speed_target = target;
+  current_ctrl_mode = CTRL_CONST_SPEED;
+  last_dir_toggle_time = millis();
+
+  // Reset PID state to avoid sudden jumps
+  pid_output = 0;
+  myPID.SetMode(MANUAL);
+  pid_output = 0;
+  myPID.SetMode(AUTOMATIC);
+
+  sender->GetSerial()->print(">>> Control Mode: CONSTANT SPEED, Target = ");
+  sender->GetSerial()->println(const_speed_target);
+}
+
+void cmd_const_pwm(SerialCommands* sender) {
+  char* arg = sender->Next();
+  if (arg == NULL) {
+    sender->GetSerial()->println(">>> Error: PWM target argument missing (0-255)");
+    return;
+  }
+  int target = atoi(arg);
+  if (target < 0 || target > 255) {
+    sender->GetSerial()->println(">>> Error: PWM must be between 0 and 255");
+    return;
+  }
+  const_pwm_target = target;
+  current_ctrl_mode = CTRL_CONST_PWM;
+  last_dir_toggle_time = millis();
+
+  sender->GetSerial()->print(">>> Control Mode: CONSTANT PWM, Target = ");
+  sender->GetSerial()->println(const_pwm_target);
+}
+
+void cmd_profile(SerialCommands* sender) {
+  current_ctrl_mode = CTRL_PROFILE;
+  current_step_index = 0;
+  step_start_time = millis();
+  pid_setpoint = profile[current_step_index].target_bemf;
+  if (current_dir_mode == DIR_FWD_ONLY) {
+    forward = true;
+  } else if (current_dir_mode == DIR_REV_ONLY) {
+    forward = false;
+  } else {
+    forward = profile[current_step_index].direction_forward;
+  }
+  sender->GetSerial()->println(">>> Control Mode: MULTI-STEP PROFILE RESET & RUN");
+}
+
+void cmd_help(SerialCommands* sender) {
+  Stream* s = sender->GetSerial();
+  s->println("--- Märklin Motor Control CLI Help ---");
+  s->println("Commands:");
+  s->println("  f          : Set Direction to Forward Only");
+  s->println("  b          : Set Direction to Backward Only");
+  s->println("  a          : Set Direction to Forward & Backward (Both)");
+  s->println("  s <speed>  : Set Closed-Loop Constant Speed (BEMF Target 0-4095)");
+  s->println("  p <pwm>    : Set Open-Loop Constant PWM (Target 0-255)");
+  s->println("  prof       : Set Mode to Pre-programmed Multi-step Profile");
+  s->println("  h or help  : Show this help menu and current system status");
+  s->println("Current Status:");
+  s->print("  Direction Mode: ");
+  if (current_dir_mode == DIR_FWD_ONLY) s->println("FORWARD ONLY");
+  else if (current_dir_mode == DIR_REV_ONLY) s->println("BACKWARD ONLY");
+  else s->println("BIDIRECTIONAL (BOTH)");
+  s->print("  Control Mode  : ");
+  if (current_ctrl_mode == CTRL_PROFILE) s->println("PROFILE");
+  else if (current_ctrl_mode == CTRL_CONST_SPEED) s->println("CONSTANT SPEED");
+  else s->println("CONSTANT PWM");
+  s->print("  Target Speed  : "); s->println(const_speed_target);
+  s->print("  Target PWM    : "); s->println(const_pwm_target);
+  s->print("  Active Dir    : "); s->println(forward ? "FWD" : "REV");
+}
+
+void cmd_unrecognized(SerialCommands* sender, const char* cmd) {
+  sender->GetSerial()->print(">>> Error: Unrecognized command '");
+  sender->GetSerial()->print(cmd);
+  sender->GetSerial()->println("'. Type 'h' or 'help' for assistance.");
+}
+
+// Commands registration
+SerialCommand cmd_f_("f", cmd_fwd_only);
+SerialCommand cmd_b_("b", cmd_rev_only);
+SerialCommand cmd_a_("a", cmd_both_dir);
+SerialCommand cmd_s_("s", cmd_const_speed);
+SerialCommand cmd_p_("p", cmd_const_pwm);
+SerialCommand cmd_prof_("prof", cmd_profile);
+SerialCommand cmd_h_("h", cmd_help);
+SerialCommand cmd_help_("help", cmd_help);
+
 void setup() {
   Serial.begin(115200);
   while (!Serial && millis() < 2000);
@@ -111,33 +312,77 @@ void setup() {
 
   last_control_time = millis();
   step_start_time = millis();
+  last_dir_toggle_time = millis();
 
   // Set initial setpoint and direction from the profile
   pid_setpoint = profile[current_step_index].target_bemf;
   forward = profile[current_step_index].direction_forward;
 
+  // Add CLI commands
+  serial_commands.AddCommand(&cmd_f_);
+  serial_commands.AddCommand(&cmd_b_);
+  serial_commands.AddCommand(&cmd_a_);
+  serial_commands.AddCommand(&cmd_s_);
+  serial_commands.AddCommand(&cmd_p_);
+  serial_commands.AddCommand(&cmd_prof_);
+  serial_commands.AddCommand(&cmd_h_);
+  serial_commands.AddCommand(&cmd_help_);
+  serial_commands.SetDefaultHandler(cmd_unrecognized);
+
   Serial.println("--- Märklin Motor Control Tool (Phase 4) ---");
-  Serial.println("Closed-loop PID Speed Control with Synchronous BEMF Feedback");
-  Serial.println("Format: SP:<setpoint>, BEMF:<measured>, PWM:<output>, DIR:<dir>");
+  Serial.println("Closed-loop PID Speed Control with Synchronous BEMF Feedback and CLI");
+  Serial.println("Type 'h' or 'help' for command options.");
+  Serial.println("Format: SP:<setpoint>, BEMF:<measured>, PWM:<output>, DIR:<dir>, MODE:<mode>");
 }
 
 void loop() {
   uint32_t now = millis();
 
+  // 0. Handle CLI Commands
+  serial_commands.ReadSerial();
+
   // 1. Update Profile Setpoint and Direction over time
-  if (now - step_start_time >= profile[current_step_index].duration_ms) {
-    step_start_time += profile[current_step_index].duration_ms; // Prevent drift in step timing
-    current_step_index = (current_step_index + 1) % PROFILE_STEPS_COUNT;
+  if (current_ctrl_mode == CTRL_PROFILE) {
+    if (now - step_start_time >= profile[current_step_index].duration_ms) {
+      step_start_time += profile[current_step_index].duration_ms; // Prevent drift in step timing
+      current_step_index = (current_step_index + 1) % PROFILE_STEPS_COUNT;
 
-    pid_setpoint = profile[current_step_index].target_bemf;
-    forward = profile[current_step_index].direction_forward;
+      pid_setpoint = profile[current_step_index].target_bemf;
+      if (current_dir_mode == DIR_FWD_ONLY) {
+        forward = true;
+      } else if (current_dir_mode == DIR_REV_ONLY) {
+        forward = false;
+      } else {
+        forward = profile[current_step_index].direction_forward;
+      }
 
-    Serial.print(">>> Step ");
-    Serial.print(current_step_index);
-    Serial.print(": Target BEMF = ");
-    Serial.print(pid_setpoint);
-    Serial.print(", Dir = ");
-    Serial.println(forward ? "FWD" : "REV");
+      Serial.print(">>> Step ");
+      Serial.print(current_step_index);
+      Serial.print(": Target BEMF = ");
+      Serial.print(pid_setpoint);
+      Serial.print(", Dir = ");
+      Serial.println(forward ? "FWD" : "REV");
+    }
+  } else {
+    // For non-profile modes, check direction overrides
+    if (current_dir_mode == DIR_FWD_ONLY) {
+      forward = true;
+    } else if (current_dir_mode == DIR_REV_ONLY) {
+      forward = false;
+    } else if (current_dir_mode == DIR_BOTH) {
+      if (now - last_dir_toggle_time >= DIR_TOGGLE_INTERVAL_MS) {
+        last_dir_toggle_time += DIR_TOGGLE_INTERVAL_MS;
+        forward = !forward;
+        Serial.print(">>> Bidirectional Toggle: Dir = ");
+        Serial.println(forward ? "FWD" : "REV");
+      }
+    }
+
+    if (current_ctrl_mode == CTRL_CONST_SPEED) {
+      pid_setpoint = const_speed_target;
+    } else {
+      pid_setpoint = 0.0;
+    }
   }
 
   // 2. Closed-Loop control loop running at periodic intervals
@@ -165,20 +410,26 @@ void loop() {
 
     digitalWrite(PIN_LED2, LOW);
 
-    // Apply PID Control
-    if (pid_setpoint == 0.0) {
-      // Force zero output and reset PID controller state to prevent crawling / integral windup
-      pid_output = 0;
-      myPID.SetMode(MANUAL);
-      pid_output = 0;
-      myPID.SetMode(AUTOMATIC);
+    int current_pwm = 0;
+    if (current_ctrl_mode == CTRL_CONST_PWM) {
+      current_pwm = const_pwm_target;
+      pid_output = current_pwm;
     } else {
-      pid_input = (double)bemf_raw;
-      myPID.Compute();
+      // Apply PID Control
+      if (pid_setpoint == 0.0) {
+        // Force zero output and reset PID controller state to prevent crawling / integral windup
+        pid_output = 0;
+        myPID.SetMode(MANUAL);
+        pid_output = 0;
+        myPID.SetMode(AUTOMATIC);
+      } else {
+        pid_input = (double)bemf_raw;
+        myPID.Compute();
+      }
+      current_pwm = (int)pid_output;
     }
 
     // Apply computed PID PWM Output
-    int current_pwm = (int)pid_output;
     if (forward) {
       analogWrite(PIN_PWM_A, current_pwm);
       analogWrite(PIN_PWM_B, 0);
@@ -197,13 +448,25 @@ void loop() {
     // Print Telemetry to Serial
     if (Serial) {
       Serial.print("SP:");
-      Serial.print((int)pid_setpoint);
+      if (current_ctrl_mode == CTRL_CONST_PWM) {
+        Serial.print("N/A");
+      } else {
+        Serial.print((int)pid_setpoint);
+      }
       Serial.print(", BEMF:");
       Serial.print(bemf_raw);
       Serial.print(", PWM:");
       Serial.print(current_pwm);
       Serial.print(", DIR:");
-      Serial.println(forward ? "FWD" : "REV");
+      Serial.print(forward ? "FWD" : "REV");
+      Serial.print(", MODE:");
+      if (current_ctrl_mode == CTRL_PROFILE) {
+        Serial.println("PROFILE");
+      } else if (current_ctrl_mode == CTRL_CONST_SPEED) {
+        Serial.println("SPEED");
+      } else {
+        Serial.println("PWM");
+      }
     }
   }
 }
