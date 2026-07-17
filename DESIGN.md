@@ -51,10 +51,10 @@ The chosen implementation for BEMF sensing is **Synchronous ADC Polling during P
 - **Justification**: This is the most straightforward method that guarantees sampling during the correct window without complex DMA or interrupt management across different MCU architectures.
 
 ### 4. PID Control Implementation
-The chosen implementation for the control strategy is the **Arduino PID Library**.
+The chosen implementation for the control strategy is a **Custom Minimal PID Class**.
 
-- **Implementation**: Utilize the standard `PID_v1` library or a compatible variant.
-- **Justification**: This library is well-tested, platform-independent within the Arduino ecosystem, and provides essential features like bumpless transfer and anti-windup.
+- **Implementation**: Utilize a minimal inline `PID` class built directly into the source code files.
+- **Justification**: Eliminating external library dependencies makes the codebase self-contained, light, and easy to maintain while ensuring matching scaling and bumpless transfer/anti-windup behavior without library overhead.
 
 ### 5. Serial Interface Realization
 The chosen implementation for the User Interface is the **SerialCommands Library**.
@@ -84,8 +84,8 @@ The chosen implementation for position tracking is **DMA-based High-Speed Sampli
   - *Reason for discarding*: Requires platform-specific timer configuration (TIM for STM32, PWM/Timer for RP2040).
 
 ### 2. PID Control
-- **Alternative B: Custom Floating-Point PID**: Manual implementation of the PID equation.
-  - *Reason for discarding*: Standard libraries are already robust and platform-independent.
+- **Alternative B: Arduino PID Library (br3ttb/PID)**: Utilizing standard library.
+  - *Reason for discarding*: Requires external library dependency tracking and installation, whereas a minimal custom inline class makes the sketch fully self-contained.
 - **Alternative C: Custom Fixed-Point PID**: Implementation using integer math.
   - *Reason for discarding*: Modern MCUs (RP2040/STM32) have enough floating-point performance (Hardware FPU in STM32, ROM functions in RP2040).
 
