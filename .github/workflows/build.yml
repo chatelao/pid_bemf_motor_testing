@@ -53,14 +53,25 @@ jobs:
         cd examples/BEMF_Ramp_Test
         pio run
 
+    - name: Build Marklin_Motor_Control Example (PlatformIO)
+      run: |
+        cd examples/Marklin_Motor_Control
+        pio run
+
     - name: Setup Arduino CLI
       uses: arduino/setup-arduino-cli@v2
 
-    - name: Install Arduino RP2040 Core
+    - name: Install Arduino RP2040 Core & Libraries
       run: |
         arduino-cli core update-index --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
         arduino-cli core install rp2040:rp2040 --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+        arduino-cli lib install "PID"
+        arduino-cli lib install "SerialCommands"
 
     - name: Compile BEMF_Ramp_Test (Arduino CLI)
       run: |
         arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/BEMF_Ramp_Test/BEMF_Ramp_Test.ino
+
+    - name: Compile Marklin_Motor_Control (Arduino CLI)
+      run: |
+        arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/Marklin_Motor_Control/Marklin_Motor_Control.ino
