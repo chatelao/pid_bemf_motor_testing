@@ -27,6 +27,14 @@ jobs:
         path: ~/.platformio
         key: ${{ runner.os }}-platformio
 
+    - name: Cache Arduino CLI
+      uses: actions/cache@v3
+      with:
+        path: ~/.arduino15
+        key: ${{ runner.os }}-arduino-${{ hashFiles('examples/BEMF_Ramp_Test/BEMF_Ramp_Test.ino') }}
+        restore-keys: |
+          ${{ runner.os }}-arduino-
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -40,7 +48,19 @@ jobs:
     - name: Build Root Project
       run: pio run
 
-    - name: Build BEMF_Ramp_Test Example
+    - name: Build BEMF_Ramp_Test Example (PlatformIO)
       run: |
         cd examples/BEMF_Ramp_Test
         pio run
+
+    - name: Setup Arduino CLI
+      uses: arduino/setup-arduino-cli@v2
+
+    - name: Install Arduino RP2040 Core
+      run: |
+        arduino-cli core update-index --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+        arduino-cli core install rp2040:rp2040 --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+
+    - name: Compile BEMF_Ramp_Test (Arduino CLI)
+      run: |
+        arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/BEMF_Ramp_Test/BEMF_Ramp_Test.ino
