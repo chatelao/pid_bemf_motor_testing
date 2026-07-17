@@ -6,7 +6,7 @@
 | 1 | Concept & Design | ✅ |
 | 2 | Environment & CI/CD Setup | ✅ |
 | 3 | Basic Motor Control (PWM) | ✅ |
-| 4 | BEMF Sensing & PID Implementation | ⏳ |
+| 4 | BEMF Sensing & PID Implementation | ✅ |
 | 5 | Commutator Ripple Detection | ⏳ |
 | 6 | CLI & Data Logging | ⏳ |
 | 7 | Calibration Sweeps & Optimization | ⏳ |
@@ -38,9 +38,9 @@
 - [x] Status LED integration (D15, D16)
 
 ### Phase 4: BEMF Sensing & PID Implementation
-- [ ] Implement synchronous ADC polling on A0/A1
-- [ ] Integrate Arduino PID Library
-- [ ] Implement closed-loop speed control
+- [x] Implement synchronous ADC polling on A0/A1
+- [x] Integrate Arduino PID Library
+- [x] Implement closed-loop speed control
 - [x] Create "PWM and bEMF only" characterization sketch (`examples/BEMF_Ramp_Test`)
     - [x] 1s ramp up/down to max speed
     - [x] BEMF measurement during PWM off-time
