@@ -1,6 +1,122 @@
 #include <Arduino.h>
-#include <PID_v1.h>
 #include <SerialCommands.h>
+
+// Minimal custom PID Class matching standard library behavior/scaling
+class PID {
+public:
+  #define AUTOMATIC 1
+  #define MANUAL 0
+  #define DIRECT 0
+  #define REVERSE 1
+
+  PID(double* Input, double* Output, double* Setpoint,
+      double Kp, double Ki, double Kd, int ControllerDirection) {
+    myInput = Input;
+    myOutput = Output;
+    mySetpoint = Setpoint;
+    inAuto = false;
+
+    SampleTime = 100; // default to 100ms
+    outMin = 0;
+    outMax = 255;
+
+    controllerDirection = ControllerDirection;
+    SetTunings(Kp, Ki, Kd);
+
+    lastTime = millis() - SampleTime;
+  }
+
+  void SetMode(int Mode) {
+    bool newAuto = (Mode == AUTOMATIC);
+    if (newAuto && !inAuto) {
+      // Initialize to ensure a bumpless transfer
+      outputSum = *myOutput;
+      lastInput = *myInput;
+      if (outputSum > outMax) outputSum = outMax;
+      else if (outputSum < outMin) outputSum = outMin;
+    }
+    inAuto = newAuto;
+  }
+
+  void SetOutputLimits(double Min, double Max) {
+    if (Min >= Max) return;
+    outMin = Min;
+    outMax = Max;
+    if (inAuto) {
+      if (*myOutput > outMax) *myOutput = outMax;
+      else if (*myOutput < outMin) *myOutput = outMin;
+      if (outputSum > outMax) outputSum = outMax;
+      else if (outputSum < outMin) outputSum = outMin;
+    }
+  }
+
+  void SetSampleTime(int NewSampleTime) {
+    if (NewSampleTime > 0) {
+      double ratio = (double)NewSampleTime / (double)SampleTime;
+      ki *= ratio;
+      kd /= ratio;
+      SampleTime = (unsigned long)NewSampleTime;
+    }
+  }
+
+  void SetTunings(double Kp, double Ki, double Kd) {
+    if (Kp < 0 || Ki < 0 || Kd < 0) return;
+    dispKp = Kp; dispKi = Ki; dispKd = Kd;
+    double SampleTimeInSec = ((double)SampleTime) / 1000.0;
+    kp = Kp;
+    ki = Ki * SampleTimeInSec;
+    kd = Kd / SampleTimeInSec;
+    if (controllerDirection == REVERSE) {
+      kp = 0.0 - kp;
+      ki = 0.0 - ki;
+      kd = 0.0 - kd;
+    }
+  }
+
+  bool Compute() {
+    if (!inAuto) return false;
+    unsigned long now = millis();
+    unsigned long timeChange = (now - lastTime);
+    if (timeChange >= SampleTime) {
+      double input = *myInput;
+      double error = *mySetpoint - input;
+      double dInput = (input - lastInput);
+      outputSum += (ki * error);
+
+      if (outputSum > outMax) outputSum = outMax;
+      else if (outputSum < outMin) outputSum = outMin;
+
+      double output = kp * error + outputSum - kd * dInput;
+      if (output > outMax) output = outMax;
+      else if (output < outMin) output = outMin;
+
+      *myOutput = output;
+      lastInput = input;
+      lastTime = now;
+      return true;
+    }
+    return false;
+  }
+
+  double GetKp() { return dispKp; }
+  double GetKi() { return dispKi; }
+  double GetKd() { return dispKd; }
+  int GetMode() { return inAuto ? AUTOMATIC : MANUAL; }
+  int GetDirection() { return controllerDirection; }
+
+private:
+  double kp, ki, kd;
+  double dispKp, dispKi, dispKd;
+  int controllerDirection;
+  double* myInput;
+  double* myOutput;
+  double* mySetpoint;
+  unsigned long lastTime;
+  double outputSum, lastInput;
+  unsigned long SampleTime;
+  double outMin, outMax;
+  bool inAuto;
+};
 
 /**
  * Märklin Motor Test & Calibration Tool
