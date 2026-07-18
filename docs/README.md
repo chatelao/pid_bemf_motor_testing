@@ -15,6 +15,9 @@ Welcome to the documentation directory of the **Märklin Motor Test & Calibratio
 3.  **[Commutator Ripple Extraction Practical Guide](Ripple_Extraction_Guide.md)**
     *   **Topic**: *Practical Implementation Guide on Target MCUs*
     *   **Focus**: Concrete engineering decisions for the Seeed Studio XIAO RP2040 and ST Nucleo-F446RE/G431RB microcontrollers. Contains code examples for DMA-based high-speed sampling, 2nd-order fixed-point IIR filter implementation, dynamic hysteresis peak detection, and multi-core processing architecture.
+4.  **[Jackw01 Ripplecounter Technical Summary](Jackw01_Ripplecounter_Summary.md)**
+    *   **Topic**: *Analysis of the jackw01/ripplecounter Open-Source Implementation*
+    *   **Focus**: Hardware front-end design details (INA181 current sense, active filtering, baseline subtraction, hysteresis comparator), component selection/modification rules for custom motors, and software debouncing/inactivity filtering logic for RP2040.
 
 ---
 
