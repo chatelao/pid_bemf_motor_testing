@@ -75,6 +75,20 @@ The chosen implementation for position tracking is **DMA-based High-Speed Sampli
 - **Implementation**: Utilize the RP2040's DMA to capture high-frequency current samples from ADC channel A2 (shunt) into a circular buffer. A second core or a high-priority interrupt then applies a digital band-pass filter and peak detection to identify commutator ripples.
 - **Justification**: Commutator ripples are high-frequency signals superimposed on the average motor current. High-speed sampling (e.g., 500 kHz) and digital processing are required to reliably extract these ripples from the PWM noise and other interference. The RP2040's dual cores and DMA make this computationally feasible.
 
+#### Target Sampling Requirements
+To accurately detect and count commutator ripples, the system must capture current fluctuations on the shunt resistor (A2) at high speed. The target sampling requirements are determined based on motor pole count and maximum rotational speed (RPM):
+- **Motor Pole Counts**: Target motors are typically Märklin 3-pole or 5-pole brushed DC-refitted motors.
+- **Maximum Speed**: Mechanical rotation speeds can reach up to 15,000 RPM, which corresponds to a mechanical frequency of:
+  $$\text{Freq}_{\text{mech}} = \frac{15000 \text{ RPM}}{60 \text{ s}} = 250 \text{ Hz}$$
+- **Commutator Ripple Frequency**:
+  - A **3-pole motor** has 3 rotor segments and produces 6 current ripples (two per pole) per full mechanical revolution.
+    $$\text{Freq}_{\text{ripple, 3-pole}} = 250 \text{ Hz} \times 6 = 1500 \text{ Hz}$$
+  - A **5-pole motor** has 5 rotor segments and produces 10 current ripples per mechanical revolution.
+    $$\text{Freq}_{\text{ripple, 5-pole}} = 250 \text{ Hz} \times 10 = 2500 \text{ Hz}$$
+- **Target Sampling Rate**:
+  - To apply a robust digital band-pass filter (isolating the 100 Hz to 2.5 kHz ripple band) and perform noise-free peak detection, we need high resolution in the time domain.
+  - A sampling rate of **50 kHz to 100 kHz** is chosen. At 50 kHz, a 2.5 kHz ripple signal is sampled at 20 points per wave cycle. At 100 kHz, it is sampled at 40 points per cycle. This provides more than sufficient resolution to separate the commutator ripple from both the low-frequency DC bias and the high-frequency 20 kHz PWM switching carrier.
+
 ## Discarded Technical Alternatives
 
 ### 1. BEMF Sampling

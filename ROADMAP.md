@@ -50,8 +50,8 @@
 
 ### Phase 5: Commutator Ripple Detection
 - [ ] **Phase 5.1: High-Speed Sampling Architecture & Setup**
-    - [ ] Document target sampling requirements (e.g., 50 kHz - 100 kHz) based on motor pole count and max RPM.
-    - [ ] Define high-speed ADC sampling software API (`RippleADC`) to abstract platform-specific sampling initialization.
+    - [x] Document target sampling requirements (e.g., 50 kHz - 100 kHz) based on motor pole count and max RPM.
+    - [x] Define high-speed ADC sampling software API (`RippleADC`) to abstract platform-specific sampling initialization.
     - [ ] Implement DMA-based ADC sampling on A2 (Shunt) for RP2040 using ADC FIFO and DMA channel interrupts.
     - [ ] Implement DMA-based ADC sampling on A2 for STM32 architectures (F446RE, G431RB) using timer triggers and DMA circular buffers.
     - [ ] Verify that high-speed ADC buffer-filling does not block the main 20 kHz PWM generator or loop execution.
