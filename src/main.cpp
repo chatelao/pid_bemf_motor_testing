@@ -371,13 +371,31 @@ void cmd_help(SerialCommands* sender) {
   s->println("  h or help  : Show this help menu and current system status");
   s->println("Current Status:");
   s->print("  Direction Mode: ");
-  if (current_dir_mode == DIR_FWD_ONLY) s->println("FORWARD ONLY");
-  else if (current_dir_mode == DIR_REV_ONLY) s->println("BACKWARD ONLY");
-  else s->println("BIDIRECTIONAL (BOTH)");
+  switch (current_dir_mode) {
+    case DIR_FWD_ONLY:
+      s->println("FORWARD ONLY");
+      break;
+    case DIR_REV_ONLY:
+      s->println("BACKWARD ONLY");
+      break;
+    case DIR_BOTH:
+    default:
+      s->println("BIDIRECTIONAL (BOTH)");
+      break;
+  }
   s->print("  Control Mode  : ");
-  if (current_ctrl_mode == CTRL_PROFILE) s->println("PROFILE");
-  else if (current_ctrl_mode == CTRL_CONST_SPEED) s->println("CONSTANT SPEED");
-  else s->println("CONSTANT PWM");
+  switch (current_ctrl_mode) {
+    case CTRL_PROFILE:
+      s->println("PROFILE");
+      break;
+    case CTRL_CONST_SPEED:
+      s->println("CONSTANT SPEED");
+      break;
+    case CTRL_CONST_PWM:
+    default:
+      s->println("CONSTANT PWM");
+      break;
+  }
   s->print("  Target Speed  : "); s->println(const_speed_target);
   s->print("  Target PWM    : "); s->println(const_pwm_target);
   s->print("  Active Dir    : "); s->println(forward ? "FWD" : "REV");
