@@ -17,8 +17,8 @@ public:
     inAuto = false;
 
     SampleTime = 100; // default to 100ms
-    outMin = 0;
-    outMax = 255;
+    outMin     =   0;
+    outMax     = 255;
 
     controllerDirection = ControllerDirection;
     SetTunings(Kp, Ki, Kd);
@@ -421,16 +421,15 @@ void setup() {
   Serial.begin(115200);
   while (!Serial && millis() < 2000);
 
-  pinMode(PIN_PWM_A, OUTPUT);
-  pinMode(PIN_PWM_B, OUTPUT);
-  pinMode(PIN_BEMF_A, INPUT);
-  pinMode(PIN_BEMF_B, INPUT);
-  pinMode(PIN_SHUNT, INPUT);
-  pinMode(PIN_LED1, OUTPUT);
-  pinMode(PIN_LED2, OUTPUT);
-
   // Set ADC to 12-bit resolution as per DESIGN.md
   analogReadResolution(12);
+  pinMode(PIN_BEMF_A, INPUT);
+  pinMode(PIN_BEMF_B, INPUT);
+
+  pinMode(PIN_SHUNT, INPUT);
+
+  pinMode(PIN_LED1, OUTPUT);
+  pinMode(PIN_LED2, OUTPUT);
 
   // Set PWM frequency to 20kHz (ultrasonic) as per DESIGN.md
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
@@ -438,14 +437,18 @@ void setup() {
 #elif defined(ARDUINO_ARCH_STM32)
   analogWriteFrequency(20000);
 #endif
+  analogWriteRange( 255 );
+
+  pinMode(PIN_PWM_A, OUTPUT);
+  pinMode(PIN_PWM_B, OUTPUT);
 
   // Initialize PID
   myPID.SetMode(AUTOMATIC);
   myPID.SetOutputLimits(0, 255);
   myPID.SetSampleTime(CONTROL_INTERVAL_MS);
 
-  last_control_time = millis();
-  step_start_time = millis();
+  last_control_time    = millis();
+  step_start_time      = millis();
   last_dir_toggle_time = millis();
 
   // Set initial setpoint and direction from the profile
@@ -547,7 +550,7 @@ void loop() {
     int current_pwm = 0;
     if (current_ctrl_mode == CTRL_CONST_PWM) {
       current_pwm = const_pwm_target;
-      pid_output = current_pwm;
+      pid_output  = current_pwm;
     } else {
       // Apply PID Control
       if (pid_setpoint == 0.0) {
