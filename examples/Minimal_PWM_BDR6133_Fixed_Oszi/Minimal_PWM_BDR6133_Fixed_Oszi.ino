@@ -75,8 +75,8 @@ void loop() {
         analogWrite(  D8, (d == 0 ? 0 : (i == 0 ? 0 : i * 16 - 1))); // backward test (0..255)
         
         // Oscilloscope Trigger (F0/F1) - INVERTED (Active LOW)
-        digitalWrite(  D9, LOW );  
-        digitalWrite( D10, LOW );  
+        digitalWrite(  D9, LOW );
+        digitalWrite( D10, LOW );
 
         if((d % 2) == 0)  // Toggle LED Color
           pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // Red
