@@ -432,12 +432,12 @@ void setup() {
   pinMode(PIN_LED2, OUTPUT);
 
   // Set PWM frequency to 20kHz (ultrasonic) as per DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
+#if defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040)
   analogWriteFreq(20000);
+  analogWriteRange(255);
 #elif defined(ARDUINO_ARCH_STM32)
   analogWriteFrequency(20000);
 #endif
-  analogWriteRange( 255 );
 
   pinMode(PIN_PWM_A, OUTPUT);
   pinMode(PIN_PWM_B, OUTPUT);

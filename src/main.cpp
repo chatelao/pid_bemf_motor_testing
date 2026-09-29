@@ -433,8 +433,9 @@ void setup() {
   analogReadResolution(12);
 
   // Set PWM frequency to 20kHz (ultrasonic) as per DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
+#if defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040)
   analogWriteFreq(20000);
+  analogWriteRange(255);
 #elif defined(ARDUINO_ARCH_STM32)
   analogWriteFrequency(20000);
 #endif
