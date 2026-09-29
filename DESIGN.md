@@ -18,8 +18,6 @@ The system follows a modular architecture as shown in the top-level diagram:
 ## Technological Stack
 - **Microcontrollers**:
   - Seeed Studio XIAO RP2040 (Dual-core ARM Cortex M0+)
-  - ST Nucleo-F446RE (ARM Cortex M4)
-  - ST Nucleo-G431RB (ARM Cortex M4)
 - **Motor Driver**: BDR-6133 H-bridge.
 - **Framework**: Arduino Framework with PlatformIO for build management and testing.
 - **Language**: C++ (Arduino flavor).
@@ -29,15 +27,15 @@ The system follows a modular architecture as shown in the top-level diagram:
 ### 1. Hardware Pin Mapping
 To maintain portability, the tool uses standard Arduino pin labels where possible.
 
-| Function | XIAO RP2040 | Nucleo F446RE | Nucleo G431RB | Description |
-|---|---|---|---|---|
-| **PWM A** | D7 | D7 | D7 | Motor Output A Control |
-| **PWM B** | D8 | D8 | D8 | Motor Output B Control |
-| **ADC BEMF A** | A0 | A0 | A0 | Feedback from Motor Terminal A |
-| **ADC BEMF B** | A1 | A1 | A1 | Feedback from Motor Terminal B |
-| **ADC Shunt** | A2 | A2 | A2 | Current measurement across shunt |
-| **LED 1** | D15 | D13 (Onboard) | D13 (Onboard) | Status LED (Red/Green) |
-| **LED 2** | D16 | D12 | D12 | Status LED (Blue) |
+| Function | XIAO RP2040 | Description |
+|---|---|---|
+| **PWM A** | D7 | Motor Output A Control |
+| **PWM B** | D8 | Motor Output B Control |
+| **ADC BEMF A** | A0 | Feedback from Motor Terminal A |
+| **ADC BEMF B** | A1 | Feedback from Motor Terminal B |
+| **ADC Shunt** | A2 | Current measurement across shunt |
+| **LED 1** | D15 | Status LED (Red/Green) |
+| **LED 2** | D16 | Status LED (Blue) |
 
 ### 2. PWM & ADC Parameters
 - **PWM Frequency**: 20 kHz (to ensure ultrasonic operation and minimize torque ripple).
@@ -65,9 +63,9 @@ The chosen implementation for the User Interface is the **SerialCommands Library
 ### 6. Hardware Abstraction Layer
 The chosen implementation for the HAL is the **Arduino Core**.
 
-- **Alternative A: Arduino Core (Selected)**: Provides a unified API for GPIO, PWM, and ADC across RP2040 and STM32. High portability and library support.
-- **Alternative B: Native Vendor SDKs (HAL/LL/pico-sdk)**: Offers maximum performance and control. However, it requires separate codebases for RP2040 and STM32, increasing maintenance overhead.
-- **Alternative C: MBED OS**: Standard on some STM32 boards. Provides RTOS features but is heavier than necessary and support for RP2040 in Arduino varies.
+- **Alternative A: Arduino Core (Selected)**: Provides a unified API for GPIO, PWM, and ADC for RP2040. High portability and library support.
+- **Alternative B: Native Vendor SDKs (pico-sdk)**: Offers maximum performance and control.
+- **Alternative C: MBED OS**: Provides RTOS features but is heavier than necessary.
 
 ### 6. Ripple Detection Realization
 The chosen implementation for position tracking is **DMA-based High-Speed Sampling and Digital Filtering**.
@@ -93,15 +91,15 @@ To accurately detect and count commutator ripples, the system must capture curre
 
 ### 1. BEMF Sampling
 - **Alternative B: DMA Circular Buffer**: Sampling ADC continuously into a DMA buffer.
-  - *Reason for discarding*: Overly complex; difficult to synchronize with PWM duty cycle across different DMA controllers (RP2040 vs STM32).
+  - *Reason for discarding*: Overly complex; difficult to synchronize with PWM duty cycle.
 - **Alternative C: Timer-Triggered ADC Interrupt**: Using a hardware timer to trigger ADC conversion.
-  - *Reason for discarding*: Requires platform-specific timer configuration (TIM for STM32, PWM/Timer for RP2040).
+  - *Reason for discarding*: Requires platform-specific timer configuration.
 
 ### 2. PID Control
 - **Alternative B: Arduino PID Library (br3ttb/PID)**: Utilizing standard library.
   - *Reason for discarding*: Requires external library dependency tracking and installation, whereas a minimal custom inline class makes the sketch fully self-contained.
 - **Alternative C: Custom Fixed-Point PID**: Implementation using integer math.
-  - *Reason for discarding*: Modern MCUs (RP2040/STM32) have enough floating-point performance (Hardware FPU in STM32, ROM functions in RP2040).
+  - *Reason for discarding*: Modern MCUs (RP2040) have enough floating-point performance via ROM functions.
 
 ### 3. Serial Interface
 - **Alternative B: Simple `Serial.readString()`**: Basic string reading.
