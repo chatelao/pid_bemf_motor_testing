@@ -43,12 +43,57 @@ int current_duty = 70;  // Default 70%
 
 String inputBuffer = "";
 
+#if defined(NATIVE_PWM) && (defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040))
+#include "hardware/pwm.h"
+#include "hardware/gpio.h"
+
+void setPwmDutyDirect(uint pin, uint16_t duty_8bit, uint32_t freq_hz) {
+  uint slice_num = pwm_gpio_to_slice_num(pin);
+  uint channel   = pwm_gpio_to_channel(pin);
+
+  if (duty_8bit == 255) {
+    // Force continuous HIGH output without switching pulses as proposed in PWM_MAX_BRIGHTNESS_AUDIT.md
+    pwm_set_chan_level(slice_num, channel, 65535);
+    return;
+  }
+
+  if (duty_8bit == 0) {
+    pwm_set_chan_level(slice_num, channel, 0);
+    return;
+  }
+
+  uint32_t clock_freq = 125000000;
+  float div = 1.0f;
+  uint32_t cycles = clock_freq / freq_hz;
+  if (cycles > 65535) {
+    div = (float)cycles / 65535.0f + 0.01f;
+    cycles = (uint32_t)((float)clock_freq / div / (float)freq_hz);
+  }
+  uint32_t top = (cycles > 1) ? (cycles - 1) : 1;
+  if (top > 65535) top = 65535;
+
+  pwm_set_clkdiv(slice_num, div);
+  pwm_set_wrap(slice_num, top);
+  uint32_t level = (duty_8bit * (top + 1)) / 255;
+  pwm_set_chan_level(slice_num, channel, level);
+}
+#endif
+
+void setPwmDuty(uint pin, uint16_t duty_8bit, uint32_t freq_hz) {
+#if defined(NATIVE_PWM) && (defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040))
+  setPwmDutyDirect(pin, duty_8bit, freq_hz);
+#else
+  (void)freq_hz;
+  analogWrite(pin, duty_8bit);
+#endif
+}
+
 void setMotorDrive(int freq_hz, int duty_pct) {
   current_freq = freq_hz;
   current_duty = duty_pct;
 
   if (freq_hz > 0) {
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
+#if !defined(NATIVE_PWM) && defined(ARDUINO_SEEED_XIAO_RP2040)
     analogWriteFreq(freq_hz);
     analogWriteRange(255);
 #endif
@@ -62,8 +107,8 @@ void setMotorDrive(int freq_hz, int duty_pct) {
   }
 
   // Drive motor forward on PIN_PWM_A, PIN_PWM_B set to 0
-  analogWrite(PIN_PWM_A, pwm_val);
-  analogWrite(PIN_PWM_B, 0);
+  setPwmDuty(PIN_PWM_A, pwm_val, current_freq);
+  setPwmDuty(PIN_PWM_B, 0, current_freq);
 
   // Status LED update
   digitalWrite(PIN_LED1, pwm_val > 0 ? HIGH : LOW);
@@ -130,8 +175,17 @@ void setup() {
   Serial.begin(115200);
   while (!Serial && millis() < 2000); // Wait for Serial connection on USB boards
 
+#if defined(NATIVE_PWM) && (defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040))
+  gpio_set_function(PIN_PWM_A, GPIO_FUNC_PWM);
+  gpio_set_function(PIN_PWM_B, GPIO_FUNC_PWM);
+  uint slice_a = pwm_gpio_to_slice_num(PIN_PWM_A);
+  uint slice_b = pwm_gpio_to_slice_num(PIN_PWM_B);
+  pwm_set_enabled(slice_a, true);
+  pwm_set_enabled(slice_b, true);
+#else
   pinMode(PIN_PWM_A, OUTPUT);
   pinMode(PIN_PWM_B, OUTPUT);
+#endif
   pinMode(PIN_LED1,  OUTPUT);
   pinMode(PIN_LED2,  OUTPUT);
 
