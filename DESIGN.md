@@ -21,6 +21,7 @@ The system follows a modular architecture as shown in the top-level diagram:
 - **Motor Driver**: BDR-6133 H-bridge.
 - **Framework**: Arduino Framework with PlatformIO for build management and testing.
 - **Language**: C++ (Arduino flavor).
+- **Packaging & Artifacts**: Standalone `.uf2` binaries generated for all example sketches and main firmware via `./scripts/package_uf2.sh`.
 
 ## Technical Implementation Choices
 

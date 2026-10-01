@@ -13,7 +13,19 @@ This project provides tool sketches for the Seeed Studio XIAO RP2040 to test and
 - **Seeed Studio XIAO RP2040**
 
 ## Getting Started
-(Instructions to be added as implementation progresses)
+### Building Firmware and Example UF2 Assets
+To build the main application firmware and package all example sketches as `.uf2` binaries for the Seeed Studio XIAO RP2040, execute the packaging script:
+
+```bash
+chmod +x scripts/package_uf2.sh
+./scripts/package_uf2.sh dist
+```
+
+All compiled `.uf2` assets will be placed into the `dist/` directory (e.g. `Marklin_Motor_Control.uf2`, `BEMF_Ramp_Test.uf2`, `Blink.uf2`, etc.).
+
+### Continuous Integration & Release Packaging
+- **CI Workflow (`.github/workflows/build.yml`)**: Builds all examples and uploads UF2 binaries as CI build artifacts on every push or pull request.
+- **Release Workflow (`.github/workflows/release.yml`)**: Automatically generates `.uf2` assets for all examples and main firmware when a tag (`v*`) or release is published on GitHub.
 
 ## License
 MIT

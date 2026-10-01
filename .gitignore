@@ -2,6 +2,8 @@
 **/.pio/
 .vscode/
 **/.vscode/
+dist/
+release_uf2/
 *.o
 *.a
 *.exe

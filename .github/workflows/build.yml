@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Cache pip
       uses: actions/cache@v3
@@ -45,18 +45,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install --upgrade platformio
 
-    - name: Build Root Project
-      run: pio run
-
-    - name: Build BEMF_Ramp_Test Example (PlatformIO)
+    - name: Package Firmware and All Examples (.uf2)
       run: |
-        cd examples/BEMF_Ramp_Test
-        pio run
+        chmod +x scripts/package_uf2.sh
+        ./scripts/package_uf2.sh dist
 
-    - name: Build Marklin_Motor_Control Example (PlatformIO)
-      run: |
-        cd examples/Marklin_Motor_Control
-        pio run
+    - name: Upload UF2 Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: uf2-firmware-binaries
+        path: dist/*.uf2
 
     - name: Setup Arduino CLI
       uses: arduino/setup-arduino-cli@v2
@@ -67,10 +65,7 @@ jobs:
         arduino-cli core install rp2040:rp2040 --additional-urls https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
         arduino-cli lib install "SerialCommands"
 
-    - name: Compile BEMF_Ramp_Test (Arduino CLI)
+    - name: Compile Core Examples (Arduino CLI)
       run: |
         arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/BEMF_Ramp_Test/BEMF_Ramp_Test.ino
-
-    - name: Compile Marklin_Motor_Control (Arduino CLI)
-      run: |
         arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/Marklin_Motor_Control/Marklin_Motor_Control.ino
