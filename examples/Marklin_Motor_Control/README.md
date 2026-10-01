@@ -43,8 +43,8 @@ The pin assignments match standard project guidelines:
 
 | Signal | Description | Seeed Studio XIAO RP2040 | Default Fallback |
 | :--- | :--- | :--- | :--- |
-| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 | Pin 7 |
-| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 | Pin 8 |
+| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 1 | Pin D7 |
+| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 2 | Pin D8 |
 | **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 | Pin A0 |
 | **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 | Pin A1 |
 | **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 | Pin A2 |

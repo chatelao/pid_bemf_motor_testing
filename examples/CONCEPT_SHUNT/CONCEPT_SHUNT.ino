@@ -20,16 +20,16 @@
 
 // Pin Definitions based on DESIGN.md
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
+  #define PIN_PWM_A D7
+  #define PIN_PWM_B D8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
-  #define PIN_LED1   15
-  #define PIN_LED2   16
+  #define PIN_LED1   PIN_LED_R
+  #define PIN_LED2   PIN_LED_B
 #else
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
+  #define PIN_PWM_A D7
+  #define PIN_PWM_B D8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2

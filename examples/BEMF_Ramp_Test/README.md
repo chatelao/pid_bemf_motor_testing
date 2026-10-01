@@ -20,13 +20,13 @@ The pinouts are standardized to interface with the BDR-6133 driver stage:
 
 | Signal | Description | Seeed Studio XIAO RP2040 | Default Fallback |
 | :--- | :--- | :--- | :--- |
-| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 | Pin 7 |
-| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 | Pin 8 |
+| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 1 | Pin D7 |
+| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 2 | Pin D8 |
 | **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 | Pin A0 |
 | **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 | Pin A1 |
 | **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 | Pin A2 |
-| **PIN_LED1** | Status LED 1 (Activity) | GPIO 15 (Red LED) | Pin 13 |
-| **PIN_LED2** | Status LED 2 (Gap Indicator)| GPIO 16 (Blue LED) | Pin 12 |
+| **PIN_LED1** | Status LED 1 (Activity) | PIN_LED_R / GPIO 17 (Red LED) | Pin 13 |
+| **PIN_LED2** | Status LED 2 (Gap Indicator)| PIN_LED_B / GPIO 25 (Blue LED) | Pin 12 |
 
 *Note: For the Seeed Studio XIAO RP2040, the onboard LEDs are active-low, and the sketch correctly handles this behavior.*
 

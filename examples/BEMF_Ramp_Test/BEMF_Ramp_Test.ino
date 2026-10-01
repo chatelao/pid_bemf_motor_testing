@@ -13,17 +13,17 @@
 
 // Pin Definitions based on DESIGN.md
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
+  #define PIN_PWM_A D7
+  #define PIN_PWM_B D8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
-  #define PIN_LED1   15
-  #define PIN_LED2   16
+  #define PIN_LED1   PIN_LED_R
+  #define PIN_LED2   PIN_LED_B
 #else
   // Default fallback to standard pins
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
+  #define PIN_PWM_A D7
+  #define PIN_PWM_B D8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
@@ -64,8 +64,9 @@ RampPhase ramp_phase        = RAMP_FORWARD_UP;
 uint32_t gap_start_ms       =     0 ;
 
 void updatePwmFrequency(uint32_t freq) {
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
+#if defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040)
   analogWriteFreq(freq);
+  analogWriteRange(255);
 #else
   (void)freq;
 #endif
@@ -77,13 +78,16 @@ void setup() {
 
   pinMode(PIN_PWM_A, OUTPUT);
   pinMode(PIN_PWM_B, OUTPUT);
+  analogWrite(PIN_PWM_A, 0);
+  analogWrite(PIN_PWM_B, 0);
+
   pinMode(PIN_LED1,  OUTPUT);
   pinMode(PIN_LED2,  OUTPUT);
 
   // Set ADC to 12-bit resolution as per DESIGN.md
   analogReadResolution(12);
 
-  // Set initial PWM frequency
+  // Set initial PWM frequency and range
   updatePwmFrequency(PWM_FREQUENCIES[current_freq_index]);
 
   Serial.println("--- Märklin Motor BEMF Characterization Tool ---");
