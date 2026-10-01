@@ -134,7 +134,7 @@ In accordance with project architecture guidelines, each major design decision e
 ### 2. High-Speed Telemetry Buffering Strategy
 - **Alternative A: Dual-Buffered Burst Capture with Asynchronous Inter-Gap Flushing (Selected)**: Samples are written directly to a RAM buffer during the high-speed interruption window, then transmitted asynchronously over USB Serial during the active PWM drive phase. Guarantees zero serial output overhead during critical bEMF sampling.
 - **Alternative B: Real-Time Blocking Serial Print**: Sampling and `Serial.print` calls are executed synchronously inside the interruption loop. Simple to write, but serial baud rate limits drastically restrict sampling frequency and introduce severe timing jitter.
-- **Alternative C: Ring-Buffer DMA Direct Streaming**: Continuously streams ADC data to USB using background DMA transfers. Offers maximum bandwidth, but cross-platform DMA implementations across RP2040 and STM32 significantly increase software complexity for parameter sweep sketches.
+- **Alternative C: Ring-Buffer DMA Direct Streaming**: Continuously streams ADC data to USB using background DMA transfers. Offers maximum bandwidth, but DMA ring-buffer implementations significantly increase software complexity for parameter sweep sketches.
 
 ### 3. Oscilloscope Verification & Hardware Triggering
 - **Alternative A: Inverted Dual-Pin Logic Gate Triggering (Selected)**: Pins `D9` and `D10` are kept HIGH during active drive, and driven LOW during the measurement window to provide clean active-low oscilloscope triggers matching `Minimal_PWM_BDR6133_Fixed_Oszi`.
@@ -151,7 +151,7 @@ In accordance with project architecture guidelines, each major design decision e
 
 2. **High-Speed Telemetry Buffering Strategy**:
    - *Alternative B (Real-Time Blocking Serial)*: Discarded due to severe timing jitter and low sampling rates caused by blocking serial calls.
-   - *Alternative C (Ring-Buffer DMA Direct Streaming)*: Discarded due to cross-platform HAL abstraction overhead for tool sketches across RP2040 and STM32.
+   - *Alternative C (Ring-Buffer DMA Direct Streaming)*: Discarded due to software abstraction overhead for tool sketches.
 
 3. **Oscilloscope Verification & Hardware Triggering**:
    - *Alternative B (Software-Only Timestamping)*: Discarded because hardware oscilloscope verification is mandatory for accurate timing analysis of flyback decay.

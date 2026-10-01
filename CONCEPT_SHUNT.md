@@ -17,7 +17,7 @@ Establish a standardized concept and tool sketch based on `examples/Minimal_PWM_
 ```text
                  +--------------------+      +--------------------+         +---------------+
                  |        MCU         |      |     BDR-6133       |         |     Motor     |
-                 | (RP2040 / STM32)   |      |    Motor Driver    |         | DC brushed    |
+                 |     (RP2040)       |      |    Motor Driver    |         | DC brushed    |
                  +--------------------+      +--------------------+         +---------------+
                  |                VCC |      |                    |         |               |
                  |                GND |      |                    |         |               |

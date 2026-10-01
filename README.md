@@ -1,7 +1,7 @@
 # Märklin Motor Test & Calibration Tool
 
 ## Overview
-This project provides tool sketches for the XIAO 2040, Nucleo STM32F446RE, and STM32G431 to test and calibrate Märklin motors after refitting them with permanent magnets. It utilizes Back-EMF (BEMF) sensing and PID control for precise speed regulation.
+This project provides tool sketches for the Seeed Studio XIAO RP2040 to test and calibrate Märklin motors after refitting them with permanent magnets. It utilizes Back-EMF (BEMF) sensing and PID control for precise speed regulation.
 
 ## Documentation
 - [CONCEPT.md](CONCEPT.md): High-level architecture and use cases.
@@ -11,8 +11,6 @@ This project provides tool sketches for the XIAO 2040, Nucleo STM32F446RE, and S
 
 ## Hardware Support
 - **Seeed Studio XIAO RP2040**
-- **ST Nucleo-F446RE**
-- **ST Nucleo-G431RB**
 
 ## Getting Started
 (Instructions to be added as implementation progresses)

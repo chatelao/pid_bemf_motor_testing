@@ -27,14 +27,6 @@
   #define PIN_SHUNT  A2
   #define PIN_LED1   15
   #define PIN_LED2   16
-#elif defined(ARDUINO_ARCH_STM32)
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   13 // Onboard LED for Nucleo
-  #define PIN_LED2   12
 #else
   #define PIN_PWM_A   7
   #define PIN_PWM_B   8
@@ -59,8 +51,6 @@ void setMotorDrive(int freq_hz, int duty_pct) {
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
     analogWriteFreq(freq_hz);
     analogWriteRange(255);
-#elif defined(ARDUINO_ARCH_STM32)
-    analogWriteFrequency(freq_hz);
 #endif
   }
 

@@ -18,19 +18,13 @@ bool RippleADC::begin(uint8_t pin, uint32_t sample_rate_hz) {
 
     pinMode(pin_, INPUT);
 
-    // Platform-specific setup stubs to be implemented in Phases 5.1.3 and 5.1.4
+    // Platform-specific setup stubs to be implemented in Phase 5.1.3
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Phase 5.1.3 RP2040 DMA and ADC FIFO configuration
     // 1. Initialize rp2040 ADC hardware, set clock divider for target sample_rate_hz.
     // 2. Configure ADC FIFO with DMA request enabled.
     // 3. Claim and setup DMA channel to transfer from ADC FIFO to buffer_ circularly.
     // 4. Register DMA interrupt handler for half-full/full buffers.
-#elif defined(ARDUINO_ARCH_STM32)
-    // TODO: Phase 5.1.4 STM32 DMA and Timer trigger configuration
-    // 1. Setup a hardware timer (e.g. TIM2/TIM3) to trigger ADC conversions at sample_rate_hz.
-    // 2. Configure the ADC in external trigger mode.
-    // 3. Enable STM32 DMA controller in circular mode to transfer conversions to buffer_.
-    // 4. Enable DMA half-transfer and transfer-complete interrupts.
 #else
     // Fallback standard configuration
 #endif
@@ -44,8 +38,6 @@ void RippleADC::start() {
 
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Enable DMA channel and trigger ADC continuous start
-#elif defined(ARDUINO_ARCH_STM32)
-    // TODO: Start STM32 timer and enable ADC DMA transfers
 #else
     // Fallback stub: start software polling if needed
 #endif
@@ -57,8 +49,6 @@ void RippleADC::stop() {
 
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Disable DMA channel and stop ADC conversion
-#elif defined(ARDUINO_ARCH_STM32)
-    // TODO: Stop STM32 timer and disable ADC DMA transfers
 #else
     // Fallback stub
 #endif

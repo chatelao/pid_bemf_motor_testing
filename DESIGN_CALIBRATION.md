@@ -62,18 +62,18 @@ The calibration engine operates as a non-blocking state machine running on the M
 
 ## Target Hardware Pin Mapping & Peripheral Allocation
 
-To maintain consistency across supported platforms (Seeed Studio XIAO RP2040, ST Nucleo-F446RE, ST Nucleo-G431RB), the calibration tool utilizes standard Arduino pin assignments and dedicated hardware trigger outputs for oscilloscope synchronization.
+To maintain consistency, the calibration tool utilizes standard Arduino pin assignments and dedicated hardware trigger outputs for oscilloscope synchronization.
 
-| Function | XIAO RP2040 | Nucleo F446RE | Nucleo G431RB | Description / Logic Level |
-|---|---|---|---|---|
-| **PWM InA** | `D7` (GPIO 3) | `D7` (PA8) | `D7` (PA8) | Motor Terminal A Drive Control |
-| **PWM InB** | `D8` (GPIO 4) | `D8` (PA9) | `D8` (PA9) | Motor Terminal B Drive Control |
-| **bEMF Sense A** | `A0` (GPIO 26) | `A0` (PA0) | `A0` (PA0) | Voltage feedback from Motor Terminal A |
-| **bEMF Sense B** | `A1` (GPIO 27) | `A1` (PA1) | `A1` (PA1) | Voltage feedback from Motor Terminal B |
-| **Shunt Current (`bEMF_C`)** | `A2` (GPIO 28) | `A2` (PA4) | `A2` (PA4) | Voltage drop across low-side shunt resistor |
-| **Oszi Trigger 1** | `D9` (GPIO 1) | `D9` (PC7) | `D9` (PC7) | Active LOW measurement gap trigger |
-| **Oszi Trigger 2** | `D10` (GPIO 2) | `D10` (PB6) | `D10` (PB6) | Active LOW measurement gap sync |
-| **Status LED 1** | `PIN_LED_R` | `D13` (PA5) | `D13` (PA5) | System Status / Sweep Active Indicator |
+| Function | XIAO RP2040 | Description / Logic Level |
+|---|---|---|
+| **PWM InA** | `D7` (GPIO 3) | Motor Terminal A Drive Control |
+| **PWM InB** | `D8` (GPIO 4) | Motor Terminal B Drive Control |
+| **bEMF Sense A** | `A0` (GPIO 26) | Voltage feedback from Motor Terminal A |
+| **bEMF Sense B** | `A1` (GPIO 27) | Voltage feedback from Motor Terminal B |
+| **Shunt Current (`bEMF_C`)** | `A2` (GPIO 28) | Voltage drop across low-side shunt resistor |
+| **Oszi Trigger 1** | `D9` (GPIO 1) | Active LOW measurement gap trigger |
+| **Oszi Trigger 2** | `D10` (GPIO 2) | Active LOW measurement gap sync |
+| **Status LED 1** | `PIN_LED_R` | System Status / Sweep Active Indicator |
 
 ---
 
@@ -83,7 +83,6 @@ To maintain consistency across supported platforms (Seeed Studio XIAO RP2040, ST
 - **Configurable Range**: 5 kHz to 32 kHz (e.g., 5 kHz, 8 kHz, 16 kHz, 20 kHz, 25 kHz, 32 kHz).
 - **MCU Realization**:
   - **RP2040**: Utilizes `analogWriteFreq(freq)` or native RP2040 hardware PWM slice registers.
-  - **STM32**: Utilizes hardware TIM counter period adjustment (`HardwareTimer` API or Timer registers).
 - **Data Capture Focus**: Evaluates motor current ripple amplitude on shunt channel `A2` and acoustic humming frequency spectrum.
 
 ### 2. BEMF Interruption Window & Settling Delay
@@ -104,7 +103,7 @@ To maintain consistency across supported platforms (Seeed Studio XIAO RP2040, ST
 - **Configurable Range**:
   - **ADC Sampling Rate**: 50 kHz to 250 kHz per channel.
   - **Sample Depth ($N_{\text{samples}}$)**: 250 to 1000 samples per measurement window.
-- **Hardware Optimization**: Configures MCU ADC prescalers (RP2040 ADC clock divider; STM32 ADC sample time cycles) to maximize acquisition bandwidth while keeping quantization noise within 12-bit bounds.
+- **Hardware Optimization**: Configures MCU ADC prescalers (RP2040 ADC clock divider) to maximize acquisition bandwidth while keeping quantization noise within 12-bit bounds.
 
 ### 4. Kickstart Boost Parameters
 - **Configurable Range**:
@@ -162,9 +161,9 @@ In accordance with project architectural guidelines, every major technical choic
 - **Alternative C: Task-Based FreeRTOS Execution Engine**: Uses an RTOS with separate tasks for sweep control, ADC acquisition, and telemetry streaming. Highly modular, but adds significant runtime overhead and reduces platform portability across bare-metal Arduino cores.
 
 ### 2. High-Speed Burst ADC Capture Realization
-- **Alternative A: Direct Register/Polling Burst Acquisition into SRAM (Selected)**: The MCU directly polls hardware ADC flags or conversion registers into pre-allocated SRAM arrays during the measurement gap. Guarantees deterministic microsecond sampling timing across RP2040 and STM32 without complex cross-platform DMA setup.
+- **Alternative A: Direct Register/Polling Burst Acquisition into SRAM (Selected)**: The MCU directly polls hardware ADC flags or conversion registers into pre-allocated SRAM arrays during the measurement gap. Guarantees deterministic microsecond sampling timing without complex DMA setup.
 - **Alternative B: Real-Time Direct Serial Transmit**: Transmits each ADC sample immediately over Serial as soon as conversion completes. Discarded because serial baud rate limitations (even at 921600 baud) clamp maximum sampling rate to ~10 kHz and distort gap duration timing.
-- **Alternative C: Continuous Background DMA Ring Buffer**: Uses continuous DMA sampling into a circular buffer and extracts gap slices post-hoc. Discarded because synchronizing DMA ring buffer pointers with high-speed PWM off-transitions across RP2040 and STM32 hardware introduces severe cross-platform HAL complexity.
+- **Alternative C: Continuous Background DMA Ring Buffer**: Uses continuous DMA sampling into a circular buffer and extracts gap slices post-hoc. Discarded because synchronizing DMA ring buffer pointers with high-speed PWM off-transitions introduces severe HAL complexity.
 
 ### 3. Oscilloscope & Hardware Verification Interface
 - **Alternative A: Dual Active-LOW Dedicated Trigger Pins (D9/D10) (Selected)**: Drives pins `D9` and `D10` LOW strictly during the active measurement gap, matching `examples/Minimal_PWM_BDR6133_Fixed_Oszi`. Provides physical logic analyzer and oscilloscope synchronization for flyback decay inspection.
@@ -186,7 +185,7 @@ In accordance with project architectural guidelines, every major technical choic
 
 2. **High-Speed Burst ADC Capture Realization**:
    - *Alternative B (Real-Time Direct Serial Transmit)*: Discarded due to baud rate throughput bottlenecks restricting ADC sampling bandwidth.
-   - *Alternative C (Continuous Background DMA Ring Buffer)*: Discarded due to cross-platform DMA abstraction complexity between RP2040 and STM32 HALs.
+   - *Alternative C (Continuous Background DMA Ring Buffer)*: Discarded due to DMA abstraction complexity.
 
 3. **Oscilloscope & Hardware Verification Interface**:
    - *Alternative B (Single Pulse-Toggle Pin)*: Discarded because dual active-low triggering provides superior oscilloscope hardware gating capabilities.
