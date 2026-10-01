@@ -13,8 +13,8 @@
 
 // Pin Definitions based on DESIGN.md
 #if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
+  #define PIN_PWM_A  D7
+  #define PIN_PWM_B  D8
   #define PIN_BEMF_A A0
   #define PIN_BEMF_B A1
   #define PIN_SHUNT  A2
