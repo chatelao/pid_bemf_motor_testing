@@ -10,7 +10,7 @@ When refitting Märklin AC/DC motors with permanent magnets, the Back-EMF (BEMF)
 
 - **E3 Frequency Range Sweep**: Sequentially steps through an E3 preferred numbers series of 11 frequencies: **47 Hz, 100 Hz, 220 Hz, 470 Hz, 1.0 kHz, 2.2 kHz, 4.7 kHz, 10 kHz, 22 kHz, 47 kHz, and 100 kHz**. After completing a bidirectional ramp cycle at one frequency, it advances to the next frequency step in the series.
 - **Open-Loop Bidirectional PWM Ramp**: For each frequency step, it sweeps the PWM from 0 to 255 (100% duty cycle) over 1 second, then back down to 0 over 1 second in the forward direction, followed by the same 1s ramp up and 1s ramp down in the backward direction.
-- **High-Frequency Telemetry Logging**: Emits real-time BEMF, PWM, and frequency telemetry at **40 kHz** (every 25 microseconds) over USB Serial at **921,600 baud**. The serial writing uses a best-effort, non-blocking check (`Serial.availableForWrite() >= 32`) to prevent high-frequency printing from choking the microprocessor's control loop.
+- **High-Frequency Telemetry Logging**: Emits real-time BEMF, PWM, and frequency telemetry at **40 kHz** (every 25 microseconds) over USB Serial at **2,000,000 baud**. The serial writing uses a best-effort, non-blocking check (`Serial.availableForWrite() >= 32`) to prevent high-frequency printing from choking the microprocessor's control loop.
 - **Synchronous Measurement Gaps**: To reliably measure BEMF without the influence of active PWM driving (especially critical at high duty cycles), the sketch inserts a **25 ms "measurement gap" (PWM = 0) every 250 ms**. During this gap, the BEMF terminal voltage decays and stabilizes to represent true coasting speed.
 - **Platform Pin Configuration**: Preconfigured for Seeed Studio XIAO RP2040 with standard pin fallbacks.
 
@@ -32,7 +32,7 @@ The pinouts are standardized to interface with the BDR-6133 driver stage:
 
 ## Telemetry Format
 
-Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **921600 baud** in the following format:
+Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **2000000 baud** in the following format:
 
 ```csv
 <PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>,<SHUNT>
@@ -63,5 +63,5 @@ pio run -e seeed_xiao_rp2040 -t upload
 To monitor the high-speed telemetry:
 
 ```bash
-pio device monitor -b 921600
+pio device monitor -b 2000000
 ```

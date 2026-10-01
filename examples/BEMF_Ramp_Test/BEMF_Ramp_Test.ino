@@ -72,7 +72,7 @@ void updatePwmFrequency(uint32_t freq) {
 }
 
 void setup() {
-  Serial.begin(921600);
+  Serial.begin(2000000);
   while (!Serial && millis() < 2000); // Wait for Serial on USB boards
 
   pinMode(PIN_PWM_A, OUTPUT);
