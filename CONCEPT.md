@@ -1,7 +1,7 @@
 # CONCEPT - Märklin Motor Test & Calibration Tool
 
 ## Goal
-Create tool sketches for the XIAO 2040, Nucleo STM32F446RE and STM32G431 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and calibrate a PID driver using BEMF.
+Create tool sketches for the XIAO RP2040 using BDR6133 to test Märklin Motor behaviour after refit with permanent magnets to analyze and calibrate a PID driver using BEMF.
 
 ## Business Cases
 - **Modernization of Heritage Locomotives**: Enable collectors to upgrade vintage Märklin locomotives with modern control electronics while maintaining smooth performance.
@@ -18,7 +18,7 @@ Create tool sketches for the XIAO 2040, Nucleo STM32F446RE and STM32G431 using B
 ## High-Level Architecture
 The system is composed of four main functional modules:
 
-1.  **Control Logic (MCU)**: Manages the high-frequency PWM generation, executes the PID control algorithm, and handles user communication. Supports RP2040 and STM32 platforms.
+1.  **Control Logic (MCU)**: Manages the high-frequency PWM generation, executes the PID control algorithm, and handles user communication. Supports RP2040 platform.
 2.  **Power Stage (BDR-6133)**: An H-bridge driver that translates low-voltage PWM signals into high-current motor drive signals.
 3.  **Sensing Unit**:
     - **BEMF Sensing**: High-impedance analog inputs to measure motor voltage during "off" PWM cycles.
@@ -36,7 +36,7 @@ The system is composed of four main functional modules:
 ```text
                  +--------------------+      +--------------------+         +---------------+
                  |        MCU         |      |     BDR-6133       |         |     Motor     |
-                 | (RP2040 / STM32)   |      |    Motor Driver    |         | DC brushed    |
+                 |     (RP2040)       |      |    Motor Driver    |         | DC brushed    |
                  +--------------------+      +--------------------+         +---------------+
                  |                VCC |      |                    |         |               |
       ---``|<----| Status LED 1   GND |      |                    |         |               |
@@ -68,7 +68,7 @@ The system is composed of four main functional modules:
 - **Alternative C: Web/Mobile App via Wi-Fi/Bluetooth**: User-friendly but requires more expensive hardware and increases complexity.
 
 ### 4. Target Platform Support
-- **Alternative A: Multi-Platform Arduino (Selected)**: Use the Arduino framework to support XIAO RP2040 and STM32 Nucleo boards. Provides high portability and a vast library ecosystem.
+- **Alternative A: Multi-Platform Arduino (Selected)**: Use the Arduino framework on supported target microcontrollers (e.g. XIAO RP2040). Provides high portability and a vast library ecosystem.
 - **Alternative B: Specific MCU (Single Platform)**: Focus only on XIAO RP2040. Simplifies development but limits the tool's reach and hardware flexibility.
 - **Alternative C: Real-Time OS (RTOS)**: Use FreeRTOS or Zephyr. Offers better task management but increases overhead and learning curve for simple tool sketches.
 

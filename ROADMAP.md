@@ -53,7 +53,6 @@
     - [x] Document target sampling requirements (e.g., 50 kHz - 100 kHz) based on motor pole count and max RPM.
     - [x] Define high-speed ADC sampling software API (`RippleADC`) to abstract platform-specific sampling initialization.
     - [ ] Implement DMA-based ADC sampling on A2 (Shunt) for RP2040 using ADC FIFO and DMA channel interrupts.
-    - [ ] Implement DMA-based ADC sampling on A2 for STM32 architectures (F446RE, G431RB) using timer triggers and DMA circular buffers.
     - [ ] Verify that high-speed ADC buffer-filling does not block the main 20 kHz PWM generator or loop execution.
 - [ ] **Phase 5.2: Digital Filtering & Signal Conditioning**
     - [ ] Design a digital band-pass filter (e.g., IIR or FIR) optimized for isolation of the 100 Hz to 2 kHz commutator ripple band.

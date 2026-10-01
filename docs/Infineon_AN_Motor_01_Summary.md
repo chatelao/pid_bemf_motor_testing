@@ -60,7 +60,7 @@ We evaluate exactly three software structures to implement these mitigation algo
 ### Alternative B: Direct ADC Sampling + Dual-Core/Interrupt DSP Pipeline [SELECTED]
 *   **Description**: High-speed ADC samples are processed in a periodic DSP block. A digital band-pass filter isolates the ripple, and a software-defined comparator with **dynamic, adaptive hysteresis** detects peaks. A tracking state machine applies timing plausibility checks (comparing the new interval to a rolling median of past intervals) and dynamically inserts ghost pulses if an expected peak is missing.
 *   **Advantages**: Extremely robust. By having full access to the digitized current waveform, the software can adapt its thresholds in real-time based on the signal's root-mean-square (RMS) value. Plausibility and extrapolation algorithms are easily implemented.
-*   **Disadvantages**: Higher RAM and CPU consumption (well within the capabilities of the RP2040 and STM32 Cortex-M4).
+*   **Disadvantages**: Higher RAM and CPU consumption (well within the capabilities of the RP2040).
 
 ### Alternative C: Frequency-Domain (FFT) Analysis
 *   **Description**: Collect a window of ADC samples (e.g., 256 or 512 points) and compute a Fast Fourier Transform (FFT) in software. Identify the speed by finding the dominant peak in the frequency spectrum corresponding to the commutator frequency.

@@ -137,14 +137,6 @@ private:
   #define PIN_SHUNT  A2
   #define PIN_LED1   PIN_LED_R // Status LED (Red)
   #define PIN_LED2   PIN_LED_B // Status LED (Blue)
-#elif defined(ARDUINO_ARCH_STM32)
-  #define PIN_PWM_A D7
-  #define PIN_PWM_B D8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   LED_BUILTIN // Onboard LED for Nucleo
-  #define PIN_LED2   D12         // External Status LED
 #else
   #define PIN_PWM_A 7
   #define PIN_PWM_B 8
@@ -436,8 +428,6 @@ void setup() {
 #if defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040)
   analogWriteFreq(20000);
   analogWriteRange(255);
-#elif defined(ARDUINO_ARCH_STM32)
-  analogWriteFrequency(20000);
 #endif
 
   // Initialize PID

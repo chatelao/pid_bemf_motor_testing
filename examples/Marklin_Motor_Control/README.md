@@ -2,7 +2,7 @@
 
 This example sketch implements Phase 4 speed regulation of a refitted Märklin AC/DC motor using a custom inline Proportional-Integral-Derivative (PID) controller, synchronous BEMF sensing, and a robust Command Line Interface (CLI) over USB Serial.
 
-It supports the **Seeed Studio XIAO RP2040**, **ST Nucleo-F446RE**, and **ST Nucleo-G431RB** development boards and controls the motor via the BDR-6133 motor driver stage.
+It supports the **Seeed Studio XIAO RP2040** development board and controls the motor via the BDR-6133 motor driver stage.
 
 ## Purpose
 
@@ -41,15 +41,15 @@ If an invalid or unrecognized command is sent, the controller returns a clean er
 
 The pin assignments match standard project guidelines:
 
-| Signal | Description | Seeed Studio XIAO RP2040 | ST Nucleo (F446RE / G431RB) | Default Fallback |
-| :--- | :--- | :--- | :--- | :--- |
-| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 | D7 / PA8 | Pin 7 |
-| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 | D8 / PA9 | Pin 8 |
-| **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 | A0 / PA0 | Pin A0 |
-| **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 | A1 / PA1 | Pin A1 |
-| **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 | A2 / PA4 | Pin A2 |
-| **PIN_LED1** | Status LED 1 (Activity) | PIN_LED_R (Red Onboard) | LED_BUILTIN / D13 | Pin 13 |
-| **PIN_LED2** | Status LED 2 (Gap Indicator)| PIN_LED_B (Blue Onboard) | D12 / PA6 | Pin 12 |
+| Signal | Description | Seeed Studio XIAO RP2040 | Default Fallback |
+| :--- | :--- | :--- | :--- |
+| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 | Pin 7 |
+| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 | Pin 8 |
+| **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 | Pin A0 |
+| **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 | Pin A1 |
+| **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 | Pin A2 |
+| **PIN_LED1** | Status LED 1 (Activity) | PIN_LED_R (Red Onboard) | Pin 13 |
+| **PIN_LED2** | Status LED 2 (Gap Indicator)| PIN_LED_B (Blue Onboard) | Pin 12 |
 
 *Note: For the Seeed Studio XIAO RP2040, the onboard LEDs are active-low, and the sketch correctly handles this behavior.*
 
@@ -82,12 +82,6 @@ cd examples/Marklin_Motor_Control
 
 # Build and upload for Seeed Studio XIAO RP2040
 pio run -e seeed_xiao_rp2040 -t upload
-
-# Build and upload for Nucleo F446RE
-pio run -e nucleo_f446re -t upload
-
-# Build and upload for Nucleo G431RB
-pio run -e nucleo_g431rb -t upload
 ```
 
 To connect to the CLI interpreter:

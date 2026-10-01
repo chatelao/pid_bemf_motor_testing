@@ -88,7 +88,7 @@ Per our project standards, we analyze exactly three alternative approaches to re
 ### Alternative B: Mixed-Signal Software/Hardware Processing (Passive Analog Filter + High-Speed ADC + Digital IIR BPF) [SELECTED]
 *   **Description**: The current shunt voltage is routed through a simple passive high-pass/antialiasing filter and directly sampled by a high-speed ADC (using DMA to avoid blocking). The filtering (band-pass), amplification, and hysteresis-based peak detection are done entirely in software (DSP).
 *   **Advantages**: Maximum flexibility. Filter parameters (e.g., center frequency, Q-factor, hysteresis thresholds) can be dynamically adjusted in software based on the estimated motor speed. No complex hardware tuning is required.
-*   **Disadvantages**: Requires higher MCU processing power (mitigated on the RP2040 by offloading DSP processing to Core 1 or using STM32's fast hardware FPUs).
+*   **Disadvantages**: Requires higher MCU processing power (mitigated on the RP2040 by offloading DSP processing to Core 1).
 
 ### Alternative C: Integrated SoC/Dedicated Ripple Counting ICs
 *   **Description**: Utilize a dedicated commercial motor diagnostics or ripple counting IC (such as specialized automotive bridge-drivers with integrated ripple counters).

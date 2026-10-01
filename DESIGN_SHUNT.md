@@ -10,7 +10,7 @@ The tool enables real-time monitoring of motor current across a low-side shunt r
 ```text
                  +--------------------+      +--------------------+         +---------------+
                  |        MCU         |      |     BDR-6133       |         |     Motor     |
-                 | (RP2040 / STM32)   |      |    Motor Driver    |         | DC brushed    |
+                 |     (RP2040)       |      |    Motor Driver    |         | DC brushed    |
                  +--------------------+      +--------------------+         +---------------+
                  |                VCC |      |                    |         |               |
                  |                GND |      |                    |         |               |
@@ -23,19 +23,19 @@ The tool enables real-time monitoring of motor current across a low-side shunt r
                  |       (MM A)   A0  |<-------------------------------/
 ```
 
-### Hardware Pin Mapping Across Platforms
-To ensure cross-platform compatibility across Seeed Studio XIAO RP2040 and ST Nucleo evaluation boards, hardware signals are mapped to standard Arduino pin macros:
+### Hardware Pin Mapping
+Hardware signals are mapped to standard Arduino pin macros for Seeed Studio XIAO RP2040:
 
-| Function | XIAO RP2040 | Nucleo F446RE | Nucleo G431RB | Description |
-|---|---|---|---|---|
-| **PWM A** | D7 | D7 (PA8) | D7 (PA8) | Motor Output Terminal A Drive |
-| **PWM B** | D8 | D8 (PA9) | D8 (PA9) | Motor Output Terminal B Drive |
-| **ADC MM A / BEMF A** | A0 | A0 (PA0) | A0 (PA0) | Analog Feedback Terminal A |
-| **ADC MM B / BEMF B** | A1 | A1 (PA1) | A1 (PA1) | Analog Feedback Terminal B |
-| **ADC Shunt** | A2 | A2 (PA4) | A2 (PA4) | Current Measurement across Shunt |
-| **LED 1** | D15 | D13 (PA5) | D13 (PA5) | Drive Status LED (Active when PWM > 0) |
-| **LED 2** | D16 | D12 (PA6) | D12 (PA6) | Secondary Status LED |
-| **RGB NeoPixel** | GPIO 12 (PWR D11) | N/A | N/A | Visual Status Indicator (Green=Run, Red=Stop) |
+| Function | XIAO RP2040 | Description |
+|---|---|---|
+| **PWM A** | D7 | Motor Output Terminal A Drive |
+| **PWM B** | D8 | Motor Output Terminal B Drive |
+| **ADC MM A / BEMF A** | A0 | Analog Feedback Terminal A |
+| **ADC MM B / BEMF B** | A1 | Analog Feedback Terminal B |
+| **ADC Shunt** | A2 | Current Measurement across Shunt |
+| **LED 1** | D15 | Drive Status LED (Active when PWM > 0) |
+| **LED 2** | D16 | Secondary Status LED |
+| **RGB NeoPixel** | GPIO 12 (PWR D11) | Visual Status Indicator (Green=Run, Red=Stop) |
 
 ## Software Specifications & Interfaces
 
@@ -84,7 +84,7 @@ The main loop executes non-blocking command processing and telemetry sampling:
 
 ### 3. Dynamic PWM Parameter Adjustment Strategy
 - **Alternative A: Direct Hardware Core Frequency Reconfiguration (Selected)**:
-  - *Implementation*: Uses platform core abstraction functions (`analogWriteFreq` / `analogWriteFrequency` on RP2040 and STM32) and updates hardware PWM registers on-the-fly when new frequency and duty parameters are parsed.
+  - *Implementation*: Uses platform core abstraction functions (`analogWriteFreq` on RP2040) and updates hardware PWM registers on-the-fly when new frequency and duty parameters are parsed.
   - *Justification*: Provides instant parameter updates directly in hardware timers with zero software CPU overhead during PWM period generation.
 - **Alternative B: Fixed Hardware PWM Frequency with Software Bit-Banging**:
   - *Concept*: Configures a fixed high-rate hardware timer interrupt and manually toggles GPIO pins in software to synthesize variable lower frequencies.

@@ -1,6 +1,6 @@
 # Commutator Ripple Extraction Practical Implementation Guide
 
-This guide details the practical realization of high-speed current ripple extraction for our Märklin motor calibration tool, mapping the theories from TI SLVA303 and Infineon AN-Motor-01 directly to our microcontroller architectures: **Seeed Studio XIAO RP2040** and **ST Nucleo-F446RE/G431RB**.
+This guide details the practical realization of high-speed current ripple extraction for our Märklin motor calibration tool, mapping the theories from TI SLVA303 and Infineon AN-Motor-01 directly to our microcontroller architecture: **Seeed Studio XIAO RP2040**.
 
 ---
 
@@ -34,11 +34,6 @@ Continuous polling of the ADC at 50 kHz blocks the main application thread. Ther
 *   **DMA Transfer**: A dedicated DMA channel moves completed samples from the ADC FIFO into a circular buffer in SRAM.
 *   **Interrupt Handling**: An interrupt is fired when the buffer is half-full (Ping-Pong buffering) or fully wrapped. Core 1 of the RP2040 handles the digital filtering, preventing jitter on Core 0 which executes the main speed control loop and CLI stream.
 
-### 2.2 STM32 (Nucleo-F446RE / G431RB) Implementation
-*   **Hardware Setup**: A hardware timer (e.g., `TIM2`) is configured to trigger ADC conversions at exactly 50 kHz.
-*   **DMA Transfer**: The ADC is linked to a DMA channel (e.g., DMA2 Stream 0 on F446) operating in circular mode.
-*   **Interrupt Handling**: The DMA half-complete (`HT`) and transfer-complete (`TC`) interrupts are used to process data blocks without stopping the sampling pipeline.
-
 ---
 
 ## 3. Digital Band-Pass Filter Design
@@ -58,8 +53,6 @@ $$\text{Scaled\_Coef} = \text{round}(\text{Float\_Coef} \times 32768)$$
 The output is then bit-shifted right to restore the scale:
 
 $$y_{\text{fixed}}[n] = \left( b_{0,\text{int}} \cdot x[n] + b_{1,\text{int}} \cdot x[n-1] + b_{2,\text{int}} \cdot x[n-2] - a_{1,\text{int}} \cdot y[n-1] - a_{2,\text{int}} \cdot y[n-2] \right) \gg 15$$
-
-*Note: On STM32, the **CMSIS-DSP** library provides optimized biquad functions (`arm_biquad_cascade_df1_fast_q15` or `arm_biquad_cascade_df1_f32`) utilizing the hardware FPU or SIMD instructions.*
 
 ---
 
@@ -129,10 +122,10 @@ We evaluate exactly three firmware options for integrating the digital filter, p
 *   **Advantages**: Very easy to write; no interrupts or multicore synchronization needed.
 *   **Disadvantages**: Discarded. The main loop also handles the slow Serial command parser, LED state blinks, and other tasks. Any delay in printing to the serial terminal will cause sampling gaps, leading to severe missed pulses.
 
-### Alternative B: Timer Interrupt Service Routine (ISR) processing [SELECTED for STM32]
-*   **Description**: The 50 kHz timer interrupt triggers the ADC conversion. The resulting sample is processed directly within the high-priority ISR. The filtering and state transition are done in less than 5 microseconds, and the global `ripple_count` is updated.
-*   **Advantages**: Guaranteed deterministic sampling. Low latency. Highly portable across Single-Core Cortex-M4 (STM32) architectures.
-*   **Disadvantages**: Consumes a significant fraction of CPU time if the ISR math is not highly optimized (requires fixed-point or hardware FPU).
+### Alternative B: Timer Interrupt Service Routine (ISR) processing
+*   **Description**: A 50 kHz timer interrupt triggers the ADC conversion. The resulting sample is processed directly within the high-priority ISR. The filtering and state transition are done in less than 5 microseconds, and the global `ripple_count` is updated.
+*   **Advantages**: Guaranteed deterministic sampling. Low latency.
+*   **Disadvantages**: Discarded. Consumes a significant fraction of CPU time on the single core handling control and CLI tasks, compared to dual-core offloading.
 
 ### Alternative C: Asynchronous Multi-Core Processing [SELECTED for RP2040]
 *   **Description**: Core 0 of the RP2040 handles the closed-loop PID control and Serial CLI stream. Core 1 runs an independent, non-blocking execution block that continuously reads blocks from the DMA circular buffer, applies the IIR filtering, and performs peak detection.
