@@ -90,7 +90,7 @@ void setup() {
   Serial.println("Ramp: 1s UP, 1s DOWN (Bidirectional)");
   Serial.println("Frequency Sweep: E3 Series (47 Hz to 100 kHz)");
   Serial.print("Measurement Gap: "); Serial.print(MEASURE_GAP_MS); Serial.println("ms");
-  Serial.println("Format: PWM_FREQ, PWM_DUTY, IS_GAP, BEMF_A, BEMF_B");
+  Serial.println("Format: PWM_FREQ, PWM_DUTY, IS_GAP, BEMF_A, BEMF_B, SHUNT");
 }
 
 void loop() {
@@ -106,7 +106,8 @@ void loop() {
     if (Serial.availableForWrite() >= 32) {
       int bemfA = analogRead(PIN_BEMF_A);
       int bemfB = analogRead(PIN_BEMF_B);
-      // Format: PWM_FREQ, PWM_DUTY, IS_GAP, BEMF_A, BEMF_B
+      int shunt = analogRead(PIN_SHUNT);
+      // Format: PWM_FREQ, PWM_DUTY, IS_GAP, BEMF_A, BEMF_B, SHUNT
       Serial.print(PWM_FREQUENCIES[current_freq_index]);
       Serial.print(',');
       Serial.print(forward ? current_pwm : -current_pwm);
@@ -115,7 +116,9 @@ void loop() {
       Serial.print(',');
       Serial.print(bemfA);
       Serial.print(',');
-      Serial.println(bemfB);
+      Serial.print(bemfB);
+      Serial.print(',');
+      Serial.println(shunt);
     }
   }
 

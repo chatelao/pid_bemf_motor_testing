@@ -35,7 +35,7 @@ The pinouts are standardized to interface with the BDR-6133 driver stage:
 Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **921600 baud** in the following format:
 
 ```csv
-<PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>
+<PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>,<SHUNT>
 ```
 
 - **PWM_FREQ**: Current PWM frequency in Hz (e.g. `47`, `100`, `220`, `470`, `1000`, `2200`, `4700`, `10000`, `22000`, `47000`, `100000`).
@@ -43,6 +43,7 @@ Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **92
 - **IS_GAP**: A boolean flag (`1` or `0`) indicating whether the data point was captured during a measurement gap.
 - **BEMF_A**: Raw 12-bit ADC value (0 to 4095) read on Terminal A.
 - **BEMF_B**: Raw 12-bit ADC value (0 to 4095) read on Terminal B.
+- **SHUNT**: Raw 12-bit ADC value (0 to 4095) read on Current Sense Shunt (`PIN_SHUNT`).
 
 ## Compilation and Upload
 
