@@ -35,9 +35,10 @@ The pinouts are standardized to interface with the BDR-6133 driver stage:
 Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **921600 baud** in the following format:
 
 ```csv
-<PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>,<SHUNT>
+<TIME_US>,<PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>,<SHUNT>
 ```
 
+- **TIME_US**: Microsecond timestamp (`micros()`).
 - **PWM_FREQ**: Current PWM frequency in Hz (e.g. `47`, `100`, `220`, `470`, `1000`, `2200`, `4700`, `10000`, `22000`, `47000`, `100000`).
 - **PWM_DUTY**: Signed integer representation of the active PWM duty cycle. Runs from `-255` (backward max) to `255` (forward max). This allows plotting utilities (such as PlatformIO Teleplot, Arduino Serial Plotter, or Python scripts) to cleanly differentiate between directions.
 - **IS_GAP**: A boolean flag (`1` or `0`) indicating whether the data point was captured during a measurement gap.
