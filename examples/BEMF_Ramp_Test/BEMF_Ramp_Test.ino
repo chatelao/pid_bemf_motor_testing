@@ -12,24 +12,13 @@
  */
 
 // Pin Definitions based on DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A  D7
-  #define PIN_PWM_B  D8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   15
-  #define PIN_LED2   16
-#else
-  // Default fallback to standard pins
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   13
-  #define PIN_LED2   12
-#endif
+#define PIN_PWM_A  D7
+#define PIN_PWM_B  D8
+#define PIN_BEMF_A A0
+#define PIN_BEMF_B A1
+#define PIN_SHUNT  A2
+#define PIN_LED1   15
+#define PIN_LED2   16
 
 // Parameters
 const uint32_t RAMP_DURATION_MS    = 1000 ;
@@ -64,11 +53,7 @@ RampPhase ramp_phase        = RAMP_FORWARD_UP;
 uint32_t gap_start_ms       =     0 ;
 
 void updatePwmFrequency(uint32_t freq) {
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
   analogWriteFreq(freq);
-#else
-  (void)freq;
-#endif
 }
 
 void setup() {
