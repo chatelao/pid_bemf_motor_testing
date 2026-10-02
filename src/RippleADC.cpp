@@ -19,15 +19,11 @@ bool RippleADC::begin(uint8_t pin, uint32_t sample_rate_hz) {
     pinMode(pin_, INPUT);
 
     // Platform-specific setup stubs to be implemented in Phase 5.1.3
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Phase 5.1.3 RP2040 DMA and ADC FIFO configuration
     // 1. Initialize rp2040 ADC hardware, set clock divider for target sample_rate_hz.
     // 2. Configure ADC FIFO with DMA request enabled.
     // 3. Claim and setup DMA channel to transfer from ADC FIFO to buffer_ circularly.
     // 4. Register DMA interrupt handler for half-full/full buffers.
-#else
-    // Fallback standard configuration
-#endif
 
     return true;
 }
@@ -36,22 +32,14 @@ void RippleADC::start() {
     if (running_) return;
     running_ = true;
 
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Enable DMA channel and trigger ADC continuous start
-#else
-    // Fallback stub: start software polling if needed
-#endif
 }
 
 void RippleADC::stop() {
     if (!running_) return;
     running_ = false;
 
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
     // TODO: Disable DMA channel and stop ADC conversion
-#else
-    // Fallback stub
-#endif
 }
 
 bool RippleADC::available() const {

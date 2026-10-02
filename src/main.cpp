@@ -128,24 +128,14 @@ private:
  * - Serial CLI interface using SerialCommands for manual/testing modes
  */
 
-// Pin Definitions based on DESIGN.md and board specific variants
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A D7
-  #define PIN_PWM_B D8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   PIN_LED_R // Status LED (Red)
-  #define PIN_LED2   PIN_LED_B // Status LED (Blue)
-#else
-  #define PIN_PWM_A 7
-  #define PIN_PWM_B 8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   13
-  #define PIN_LED2   12
-#endif
+// Pin Definitions based on DESIGN.md
+#define PIN_PWM_A  D7
+#define PIN_PWM_B  D8
+#define PIN_BEMF_A A0
+#define PIN_BEMF_B A1
+#define PIN_SHUNT  A2
+#define PIN_LED1   15
+#define PIN_LED2   16
 
 // Parameters
 const uint32_t CONTROL_INTERVAL_MS = 50;
@@ -425,10 +415,8 @@ void setup() {
   analogReadResolution(12);
 
   // Set PWM frequency to 20kHz (ultrasonic) as per DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040) || defined(ARDUINO_ARCH_RP2040)
   analogWriteFreq(20000);
   analogWriteRange(255);
-#endif
 
   // Initialize PID
   myPID.SetMode(AUTOMATIC);
@@ -564,11 +552,7 @@ void loop() {
     }
 
     // Status LED1 reflects motor activity
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
     digitalWrite(PIN_LED1, current_pwm > 0 ? LOW : HIGH); // Low is ON for XIAO onboard LEDs
-#else
-    digitalWrite(PIN_LED1, current_pwm > 0 ? HIGH : LOW);
-#endif
 
     // Print Telemetry to Serial
     if (Serial) {

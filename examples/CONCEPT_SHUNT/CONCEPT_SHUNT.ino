@@ -13,29 +13,17 @@
 
 #include <Arduino.h>
 
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #include <Adafruit_NeoPixel.h>
-  Adafruit_NeoPixel pixels(1, 12, NEO_GRB + NEO_KHZ400);
-#endif
+#include <Adafruit_NeoPixel.h>
+Adafruit_NeoPixel pixels(1, 12, NEO_GRB + NEO_KHZ400);
 
 // Pin Definitions based on DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   15
-  #define PIN_LED2   16
-#else
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   13
-  #define PIN_LED2   12
-#endif
+#define PIN_PWM_A  D7
+#define PIN_PWM_B  D8
+#define PIN_BEMF_A A0
+#define PIN_BEMF_B A1
+#define PIN_SHUNT  A2
+#define PIN_LED1   15
+#define PIN_LED2   16
 
 // State variables
 int current_freq = 100; // Default 100 Hz
@@ -48,10 +36,8 @@ void setMotorDrive(int freq_hz, int duty_pct) {
   current_duty = duty_pct;
 
   if (freq_hz > 0) {
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
     analogWriteFreq(freq_hz);
     analogWriteRange(255);
-#endif
   }
 
   int pwm_val = (current_duty * 255) / 100;
@@ -68,14 +54,12 @@ void setMotorDrive(int freq_hz, int duty_pct) {
   // Status LED update
   digitalWrite(PIN_LED1, pwm_val > 0 ? HIGH : LOW);
 
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
   if (pwm_val > 0) {
     pixels.setPixelColor(0, pixels.Color(0, 255, 0)); // Green when running
   } else {
     pixels.setPixelColor(0, pixels.Color(255, 0, 0)); // Red when stopped
   }
   pixels.show();
-#endif
 }
 
 void processCommand(String cmd) {
@@ -137,12 +121,10 @@ void setup() {
 
   analogReadResolution(12);
 
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
   pinMode(11, OUTPUT);
   digitalWrite(11, HIGH); // Power NeoPixel
   pixels.begin();
   pixels.setBrightness(50);
-#endif
 
   // Set motor to initial state: 100 Hz / 70% duty cycle
   setMotorDrive(100, 70);

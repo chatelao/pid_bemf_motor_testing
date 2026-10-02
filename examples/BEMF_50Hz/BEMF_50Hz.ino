@@ -9,24 +9,13 @@
  */
 
 // Pin Definitions based on DESIGN.md
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
-  #define PIN_PWM_A  D7
-  #define PIN_PWM_B  D8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   15
-  #define PIN_LED2   16
-#else
-  // Default fallback to standard pins
-  #define PIN_PWM_A   7
-  #define PIN_PWM_B   8
-  #define PIN_BEMF_A A0
-  #define PIN_BEMF_B A1
-  #define PIN_SHUNT  A2
-  #define PIN_LED1   13
-  #define PIN_LED2   12
-#endif
+#define PIN_PWM_A  D7
+#define PIN_PWM_B  D8
+#define PIN_BEMF_A A0
+#define PIN_BEMF_B A1
+#define PIN_SHUNT  A2
+#define PIN_LED1   15
+#define PIN_LED2   16
 
 // Parameters
 const uint32_t PWM_FREQ = 50;   // 50 Hz PWM frequency
@@ -45,9 +34,7 @@ void setup() {
   analogReadResolution(12);
 
   // Set 50 Hz PWM frequency for RP2040
-#if defined(ARDUINO_SEEED_XIAO_RP2040)
   analogWriteFreq(PWM_FREQ);
-#endif
 
   // Drive single direction (Forward) at max speed
   analogWrite(PIN_PWM_A, PWM_DUTY);
