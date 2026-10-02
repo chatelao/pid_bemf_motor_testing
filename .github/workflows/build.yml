@@ -68,4 +68,5 @@ jobs:
     - name: Compile Core Examples (Arduino CLI)
       run: |
         arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/BEMF_Ramp_Test/BEMF_Ramp_Test.ino
+        arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/BEMF_50Hz/BEMF_50Hz.ino
         arduino-cli compile --fqbn rp2040:rp2040:seeed_xiao_rp2040 examples/Marklin_Motor_Control/Marklin_Motor_Control.ino
