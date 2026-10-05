@@ -12,27 +12,27 @@ When refitting Märklin AC/DC motors with permanent magnets, the Back-EMF (BEMF)
 - **Open-Loop Bidirectional PWM Ramp**: For each frequency step, it sweeps the PWM from 0 to 255 (100% duty cycle) over 1 second, then back down to 0 over 1 second in the forward direction, followed by the same 1s ramp up and 1s ramp down in the backward direction.
 - **High-Frequency Telemetry Logging**: Emits real-time BEMF, PWM, and frequency telemetry at **40 kHz** (every 25 microseconds) over USB Serial at **921,600 baud**. The serial writing uses a best-effort, non-blocking check (`Serial.availableForWrite() >= 32`) to prevent high-frequency printing from choking the microprocessor's control loop.
 - **Synchronous Measurement Gaps**: To reliably measure BEMF without the influence of active PWM driving (especially critical at high duty cycles), the sketch inserts a **25 ms "measurement gap" (PWM = 0) every 250 ms**. During this gap, the BEMF terminal voltage decays and stabilizes to represent true coasting speed.
-- **Platform Pin Configuration**: Preconfigured for Seeed Studio XIAO RP2040 with standard pin fallbacks.
+- **Platform Pin Configuration**: Preconfigured with standardized pin mappings for Seeed Studio XIAO RP2040 hardware platform.
 
 ## Pin Mapping
 
 The pinouts are standardized to interface with the BDR-6133 driver stage:
 
-| Signal | Description | Seeed Studio XIAO RP2040 | Default Fallback |
-| :--- | :--- | :--- | :--- |
-| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 | Pin 7 |
-| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 | Pin 8 |
-| **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 | Pin A0 |
-| **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 | Pin A1 |
-| **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 | Pin A2 |
-| **PIN_LED1** | Status LED 1 (Activity) | GPIO 15 (Red LED) | Pin 13 |
-| **PIN_LED2** | Status LED 2 (Gap Indicator)| GPIO 16 (Blue LED) | Pin 12 |
+| Signal | Description | Seeed Studio XIAO RP2040 |
+| :--- | :--- | :--- |
+| **PIN_PWM_A** | PWM Phase A Drive | D7 / GPIO 7 |
+| **PIN_PWM_B** | PWM Phase B Drive | D8 / GPIO 8 |
+| **PIN_BEMF_A** | BEMF Sense Terminal A | A0 / GPIO 26 |
+| **PIN_BEMF_B** | BEMF Sense Terminal B | A1 / GPIO 27 |
+| **PIN_SHUNT** | Current Sense Shunt | A2 / GPIO 28 |
+| **PIN_LED1** | Status LED 1 (Activity) | GPIO 15 (Red LED) |
+| **PIN_LED2** | Status LED 2 (Gap Indicator) | GPIO 16 (Blue LED) |
 
 *Note: For the Seeed Studio XIAO RP2040, the onboard LEDs are active-low, and the sketch correctly handles this behavior.*
 
 ## Telemetry Format
 
-Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **921600 baud** in the following format:
+Data is logged to the serial monitor as a comma-separated stream (`CSV`) at **921,600 baud** in the following format:
 
 ```csv
 <TIME_US>,<PWM_FREQ>,<PWM_DUTY>,<IS_GAP>,<BEMF_A>,<BEMF_B>,<SHUNT>
