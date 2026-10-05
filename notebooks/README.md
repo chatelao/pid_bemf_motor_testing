@@ -23,6 +23,7 @@ An interactive electromechanical simulation engine for DC motors (e.g. refitted 
   - Features real-time parameter tuning sliders for PWM frequency, duty cycle, gap period/duration, load torque, and motor physical constants.
   - Interactive BEMF gap selector (`w_gap_index`) for zoomed inspection of individual BEMF measurement windows and edge cases.
 - **Pre-configured Motor Presets**:
+  - **Umgebauter 3-poliger Märklinmotor (HAMO Magnet)**: Default preset for classic 3-pole Märklin motors converted with a HAMO permanent magnet for DC PWM drive ($R_a = 8\,\Omega$, $L_a = 5\text{ mH}$).
   - **Alte Märklinmotoren (3-polig / 5-polig DCM)**: High inductance ($L_a \approx 10\text{--}25\text{ mH}$), significant mechanical inertia.
   - **Glockenankermotor (Coreless / Faulhaber / Maxon)**: Extremely low inductance ($L_a < 1\text{ mH}$), rapid electrical response.
   - **Moderne Motoren**: Standard 5-pole DC motor characteristics.
