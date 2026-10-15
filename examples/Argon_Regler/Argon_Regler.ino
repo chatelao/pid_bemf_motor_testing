@@ -267,7 +267,7 @@ void detectGapCommutatorSpark(int diff_bemf, uint32_t now_us) {
 
   // Hochpass: Differenz zwischen aktuellem Sample und gleitender lokaler Baseline
   // Ein Bürsten-Abrissfunke oder Kommutator-Kurzschluss erzeugt einen steilen Einbruch/Sprung
-  float highpass_ glitch = fabsf((float)diff_bemf - enc.fast_baseline_bemf);
+  float highpass_glitch = fabsf((float)diff_bemf - enc.fast_baseline_bemf);
 
   // Adaptive Schwelle: Skaliert leicht mit der Grunddrehzahl, mindestens aber cfg.spark_threshold_adc
   float dyn_threshold = max(cfg.spark_threshold_adc, enc.fast_baseline_bemf * 0.045f);
